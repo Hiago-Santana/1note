@@ -112,12 +112,12 @@ onMounted(
         </div>
       </div>
     </div>
-    <div class="flex flex-wrap gap-wr flex-column justify-center px-8 ">
-      <div class="grid grid-cols-7 gap-4 items-start ">
+    <div class="">
+      <div class="xl:grid xl:grid-cols-9 md:grid md:grid-cols-7 gap-4 sm:grid sm:grid-cols-2">
         <div
           class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] p-2 rounded-md mt-2 content-start break-words font-semibold hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)]"
           v-for="entered in allNote" :key="entered" @click="viewNote(entered[0].id),toglleTitle=false">{{ entered[0].title }}
-          <p class="font-normal text-justify">{{ entered[0].description }}</p>
+          <p class="font-normal text-center">{{ entered[0].description }}</p>
         </div>
       </div>
     </div>
@@ -126,7 +126,7 @@ onMounted(
       <div class="fixed overflow-x-hidden overflow-y-auto inset-0 flex justify-center items-center z-50 overscroll-none "
         v-if="toglleModal">
         <div class="relative wx-auto max-w-2xl w-96 max-h-full my-20">
-          <div class="bg-white w-full rounded  shadow-2xl flex flex-col p-4">
+          <div class="bg-white dark:bg-gray-900 w-full rounded  shadow-2xl flex flex-col p-4">
             <input :value="indexNote[1]" @input="event => indexNote[1] = event.target.value"
               class="text-2xl font-bold focus:outline-none">
             <input :value="indexNote[2]" @input="event => indexNote[2] = event.target.value"
