@@ -9,7 +9,6 @@ const indexNote = ref([]);
 const toglleModal = ref(false);
 const indexDelete = ref();
 const allNote = ref([]);
-const testando = ref("");
 const toglleTitle = ref(false);
 
 const viewNote = (id) => {
@@ -19,12 +18,10 @@ const viewNote = (id) => {
     const idArray = allNote.value[i][0].id;
     if (idArray === id) {
       indexNote.value = "";
-
       const title = allNote.value[i][0].title;
       const description = allNote.value[i][0].description;
       indexNote.value = [id, title, description];
       toglleModal.value = true;
-      // allNote.value[i][2] = true;     
       indexDelete.value = i;
     }
   }
@@ -46,7 +43,6 @@ async function reloadNote() {
 }
 
 async function addTitleDescription(index) {
-  //console.log("teste1")
   const title = enteredTitle.value;
   const description = enteredDescription.value;
   const display = false;
@@ -73,7 +69,6 @@ const editeNote = () => {
   const id = indexNote.value[0];
   const title = indexNote.value[1];
   const description = indexNote.value[2];
-  //console.log(id, title, description)
 
   setNote(id, title, description);
   toglleModal.value = false;
@@ -87,37 +82,27 @@ onMounted(
 </script>
 
 <template>
-  <section  class="h-screen flex flex-col ">
-    <!-- <div class="flex justify-center ">
-        <div
-          class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] p-2 rounded-md">
-          <input id="title" type="text" v-model="enteredTitle" placeholder="Título"
-            class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none" />
-          <input id="description" type="text" v-model="enteredDescription" placeholder="Escreva uma nota"
-            class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none" />
-          <button id="btnsave" @click="addTitleDescription(index)"
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Salvar</button>
-        </div>
-      </div> -->
+  <section class="h-screen flex flex-col w-full dark:bg-zinc-900">
     <div class="flex justify-center ">
       <div
-        class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] p-2 rounded-md">
+        class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] p-2 rounded-md dark:bg-zinc-900">
         <input @click="toglleTitle = true" id="title" type="text" v-model="enteredTitle" placeholder="Título"
-          class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none" />
+          class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
         <div v-if="toglleTitle" class="">
           <input id="description" type="text" v-model="enteredDescription" placeholder="Escreva uma nota"
-            class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none" />
+            class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
           <button id="btnsave" @click="addTitleDescription(index)"
             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Salvar</button>
         </div>
       </div>
     </div>
     <div class="">
-      <div class="xl:grid xl:grid-cols-9 md:grid md:grid-cols-7 gap-4 sm:grid sm:grid-cols-2">
+      <div class="xl:grid xl:grid-cols-9 md:grid md:grid-cols-7 gap-4 sm:grid sm:grid-cols-2 dark:bg-zinc-900">
         <div
-          class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] p-2 rounded-md mt-2 content-start break-words font-semibold hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)]"
-          v-for="entered in allNote" :key="entered" @click="viewNote(entered[0].id),toglleTitle=false">{{ entered[0].title }}
-          <p class="font-normal text-center">{{ entered[0].description }}</p>
+          class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] p-2 rounded-md mt-2 content-start break-words font-semibold hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] dark:bg-zinc-900"
+          v-for="entered in allNote" :key="entered" @click="viewNote(entered[0].id), toglleTitle = false">{{ entered[0].title
+          }}
+          <p class="font-normal text-center dark:bg-zinc-900">{{ entered[0].description }}</p>
         </div>
       </div>
     </div>
@@ -126,11 +111,11 @@ onMounted(
       <div class="fixed overflow-x-hidden overflow-y-auto inset-0 flex justify-center items-center z-50 overscroll-none "
         v-if="toglleModal">
         <div class="relative wx-auto max-w-2xl w-96 max-h-full my-20">
-          <div class="bg-white dark:bg-gray-900 w-full rounded  shadow-2xl flex flex-col p-4">
+          <div class="bg-white dark:bg-zinc-900 w-full rounded  shadow-2xl flex flex-col p-4">
             <input :value="indexNote[1]" @input="event => indexNote[1] = event.target.value"
-              class="text-2xl font-bold focus:outline-none">
+              class="text-2xl font-bold focus:outline-none dark:bg-zinc-900">
             <input :value="indexNote[2]" @input="event => indexNote[2] = event.target.value"
-              class="overflow-auto focus:outline-none">
+              class="overflow-auto focus:outline-none dark:bg-zinc-900">
             <div class="items-baseline">
               <button class="rounded bg-red-500 hover:bg-red-600 text-white px-6 mt-1 py-1 w-3/12 mb-3 m-2"
                 @click="toglleModal = false">Close</button>
@@ -149,11 +134,4 @@ onMounted(
   </section>
 </template>
 
-<style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap');
-
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-</style>
+<style scoped></style>
