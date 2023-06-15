@@ -7,12 +7,12 @@ const enteredTitle = ref('');
 const enteredDescription = ref('');
 const indexNote = ref([]);
 const toglleModal = ref(false);
-const indexDelete = ref();
+
 const allNote = ref([]);
 const toglleTitle = ref(false);
 
 const viewNote = (id) => {
-  //get the size of the inner array 
+  //see note when clicked 
   const size = allNote.value.length;
   for (let i = 0; i < size; i++) {
     const idArray = allNote.value[i][0].id;
@@ -21,14 +21,13 @@ const viewNote = (id) => {
       const title = allNote.value[i][0].title;
       const description = allNote.value[i][0].description;
       indexNote.value = [id, title, description];
-      toglleModal.value = true;
-      indexDelete.value = i;
+      toglleModal.value = true;      
     }
   }
 }
 
 async function reloadNote() {
-  //load the page when opened
+  //Get data from database and reload notes
   allNote.value = [];
   const note = [await readAllNote()];
   const size = note[0].length;
@@ -36,29 +35,27 @@ async function reloadNote() {
   for (let i = 0; size > i; i++) {
     const title = note[0][i].title;
     const description = note[0][i].description;
-    const display = note[0][i].display;
     const id = note[0][i].id;
-    allNote.value.push([{ title, description, display, id }])
+    allNote.value.push([{ title, description, id }])
   }
 }
 
 async function addTitleDescription(index) {
+  //Add title and description to database
   const title = enteredTitle.value;
   const description = enteredDescription.value;
-  const display = false;
   await addNote(title, description);
   const note = [await readAllNote()];
   const size = note[0].length - 1;
   const id = note[0][size].id;
-  console.log(allNote.value);
-  allNote.value.push([{ title, description, display, id }])
-  console.log(allNote.value);
+  allNote.value.push([{ title, description, id }])
   enteredTitle.value = "";
   enteredDescription.value = "";
   toglleTitle.value = false;
 }
 
 const removeNote = () => {
+  //Delete note
   const id = indexNote.value[0];
   deleteNote(id);
   reloadNote();
@@ -66,15 +63,16 @@ const removeNote = () => {
 }
 
 const editeNote = () => {
+  //Edite note
   const id = indexNote.value[0];
   const title = indexNote.value[1];
   const description = indexNote.value[2];
-
   setNote(id, title, description);
+  reloadNote();
   toglleModal.value = false;
 }
 
-//load the function when page opened
+//load the function when page is opened
 onMounted(
   reloadNote()
 );
@@ -97,7 +95,7 @@ onMounted(
       </div>
     </div>
     <div class="">
-      <div class="xl:grid xl:grid-cols-9 md:grid md:grid-cols-7 gap-4 sm:grid sm:grid-cols-2 dark:bg-zinc-900">
+      <div class="grid xl:grid-cols-9 xl:gap-4 md:grid-cols-5 md:gap-3 ph:grid-cols-2 ph:gap-2 dark:bg-zinc-900">
         <div
           class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] p-2 rounded-md mt-2 content-start break-words font-semibold hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] dark:bg-zinc-900"
           v-for="entered in allNote" :key="entered" @click="viewNote(entered[0].id), toglleTitle = false">{{ entered[0].title
@@ -124,7 +122,6 @@ onMounted(
               <button class="rounded bg-green-500 hover:bg-green-600 text-white px-6 mt-1 py-1 w-3/12 mb-3 m-2"
                 @click="editeNote">Save</button>
             </div>
-
           </div>
         </div>
       </div>

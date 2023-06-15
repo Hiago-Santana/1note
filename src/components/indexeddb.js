@@ -22,12 +22,10 @@ function openDataBase() {
 }
 
 export async function addNote(title, description) {
-  const display = false;
   const dateNow = new Date();
   const idValue = dateNow.getTime();
-  //const returndate = new Date(id2);
   const db = await openDataBase();
-  db.add("note", {title, description, display});
+  db.add("note", {title, description});
   
   const store = db.transaction('note').store;
   const cursor = await store.openCursor();
@@ -36,21 +34,15 @@ export async function addNote(title, description) {
 export async function readAllNote() {
   const db = await openDataBase();
   const allNote = await db.getAll("note");
-  //console.log(allNote);
   return allNote;
 }
 
 export async function deleteNote(id) {
   const db = await openDataBase();
   db.delete("note", id);
-  //transaction.objectStore("note").delete(id);
 }
 
 export async function setNote(id1,title1,description1) {
-  const display1 = false;
-  console.log("setnote", id1,title1,description1);
   const db = await openDataBase();
-  await db.put("note", {title: title1, description: description1, display: display1}, id1)
-  //db.put('note', {title: title}, id);
-  console.log("Execution setNote")
+  await db.put("note",{id: id1, title: title1, description: description1})  
 }
