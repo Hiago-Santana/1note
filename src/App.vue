@@ -83,7 +83,7 @@ onMounted(
   <section class="h-screen flex flex-col w-full dark:bg-zinc-900">
     <div class="flex justify-center ">
       <div
-        class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] p-2 rounded-md dark:bg-zinc-900">
+        class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] p-2 rounded-md dark:bg-zinc-900 mb-2">
         <input @click="toglleTitle = true" id="title" type="text" v-model="enteredTitle" placeholder="Título"
           class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
         <div v-if="toglleTitle" class="">
