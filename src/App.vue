@@ -7,9 +7,21 @@ const enteredTitle = ref('');
 const enteredDescription = ref('');
 const indexNote = ref([]);
 const toglleModal = ref(false);
-
+const teste = ref([]);
+const indexNoteCopy = ref([]);
 const allNote = ref([]);
 const toglleTitle = ref(false);
+const toggleSave = ref(false);
+
+const ViewSave = () => {
+  if(indexNote.value[1] != indexNoteCopy.value[1] || indexNote.value[2] != indexNoteCopy.value[2]){
+    console.log("diferente")
+    toggleSave.value = true;
+
+  }else{
+    toggleSave.value = false;
+    console.log("Igual")}
+}
 
 const viewNote = (id) => {
   //see note when clicked 
@@ -21,6 +33,9 @@ const viewNote = (id) => {
       const title = allNote.value[i][0].title;
       const description = allNote.value[i][0].description;
       indexNote.value = [id, title, description];
+      indexNoteCopy.value = [id, title, description];
+      // console.log(indexNoteCopy.value[1]);
+      // console.log(indexNote.value[1])
       toglleModal.value = true;      
     }
   }
@@ -108,19 +123,28 @@ onMounted(
     <div>
       <div class="fixed overflow-x-hidden overflow-y-auto inset-0 flex justify-center items-center z-50 overscroll-none "
         v-if="toglleModal">
-        <div class="relative wx-auto max-w-2xl w-96 max-h-full my-20">
-          <div class="bg-white dark:bg-zinc-900 w-full rounded  shadow-2xl flex flex-col p-4">
-            <input :value="indexNote[1]" @input="event => indexNote[1] = event.target.value"
+        <div class="relative wx-auto max-w-2xl w-96 max-h-full my-20 ">
+          <div class="bg-white dark:bg-zinc-900 w-full rounded  shadow-2xl flex flex-col pt-0 pb-4 px-4 ">
+            <div class="place-self-end">
+              <button class="rounded-full hover:bg-gray-100 p-1 w-[30px] h-30px"
+                @click="toglleModal = false"><font-awesome-icon icon="fa-solid fa-xmark" style="color: #707070;" /></button>
+              </div>
+              
+            
+            <input v-bind="ViewSave()" :value="indexNote[1]" @input="event => indexNote[1] = event.target.value"
               class="text-2xl font-bold focus:outline-none dark:bg-zinc-900">
-            <input :value="indexNote[2]" @input="event => indexNote[2] = event.target.value"
+            <input v-bind="ViewSave()" :value="indexNote[2]" @input="event => indexNote[2] = event.target.value"
               class="overflow-auto focus:outline-none dark:bg-zinc-900">
-            <div class="items-baseline">
-              <button class="rounded bg-red-500 hover:bg-red-600 text-white px-6 mt-1 py-1 w-3/12 mb-3 m-2"
-                @click="toglleModal = false">Close</button>
-              <button class="rounded bg-gray-500 hover:bg-gray-600 text-white px-6 mt-1 py-1 w-3/12 mb-3 m-2"
-                @click="removeNote">Delete</button>
-              <button class="rounded bg-green-500 hover:bg-green-600 text-white px-6 mt-1 py-1 w-3/12 mb-3 m-2"
+              
+            <div class="items-baseline place-self-end">
+              
+              <button class="rounded-full hover:bg-gray-100 p-1 w-[30px] m-1 h-30px"
+                @click="removeNote"><font-awesome-icon icon="fa-solid fa-trash" style="color: #707070;" /></button>
+              <span v-if="toggleSave">
+                <button class="rounded-full hover:bg-gray-100 text-gray px-6 mt-1 py-1 w-3/12 mb-3 m-2"
                 @click="editeNote">Save</button>
+              </span>
+                
             </div>
           </div>
         </div>
