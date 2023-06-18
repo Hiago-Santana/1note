@@ -7,20 +7,23 @@ const enteredTitle = ref('');
 const enteredDescription = ref('');
 const indexNote = ref([]);
 const toglleModal = ref(false);
-const teste = ref([]);
 const indexNoteCopy = ref([]);
 const allNote = ref([]);
 const toglleTitle = ref(false);
 const toggleSave = ref(false);
+const disabled = ref(false)
+
 
 const ViewSave = () => {
-  if(indexNote.value[1] != indexNoteCopy.value[1] || indexNote.value[2] != indexNoteCopy.value[2]){
-    console.log("diferente")
-    toggleSave.value = true;
-
-  }else{
+  if (indexNote.value[1] != indexNoteCopy.value[1] || indexNote.value[2] != indexNoteCopy.value[2]) {
+    setTimeout(() => {
+      toggleSave.value = true;
+    }, 150)
+    disabled.value = true;
+  } else {
     toggleSave.value = false;
-    console.log("Igual")}
+    disabled.value = false;
+  }
 }
 
 const viewNote = (id) => {
@@ -34,9 +37,7 @@ const viewNote = (id) => {
       const description = allNote.value[i][0].description;
       indexNote.value = [id, title, description];
       indexNoteCopy.value = [id, title, description];
-      // console.log(indexNoteCopy.value[1]);
-      // console.log(indexNote.value[1])
-      toglleModal.value = true;      
+      toglleModal.value = true;
     }
   }
 }
@@ -105,7 +106,7 @@ onMounted(
           <input id="description" type="text" v-model="enteredDescription" placeholder="Escreva uma nota"
             class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
           <button id="btnsave" @click="addTitleDescription(index)"
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Salvar</button>
+            class="bg-blue-500 hover:bg-blue-700 text-white-100 font-bold py-2 px-4 rounded">Salvar</button>
         </div>
       </div>
     </div>
@@ -113,7 +114,8 @@ onMounted(
       <div class="grid xl:grid-cols-9 xl:gap-4 md:grid-cols-5 md:gap-3 ph:grid-cols-2 ph:gap-2 dark:bg-zinc-900">
         <div
           class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] p-2 rounded-md mt-2 content-start break-words font-semibold hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] dark:bg-zinc-900"
-          v-for="entered in allNote" :key="entered" @click="viewNote(entered[0].id), toglleTitle = false">{{ entered[0].title
+          v-for="entered in allNote" :key="entered" @click="viewNote(entered[0].id), toglleTitle = false">{{
+            entered[0].title
           }}
           <p class="font-normal text-center dark:bg-zinc-900">{{ entered[0].description }}</p>
         </div>
@@ -127,24 +129,22 @@ onMounted(
           <div class="bg-white dark:bg-zinc-900 w-full rounded  shadow-2xl flex flex-col pt-0 pb-4 px-4 ">
             <div class="place-self-end">
               <button class="rounded-full hover:bg-gray-100 p-1 w-[30px] h-30px"
-                @click="toglleModal = false"><font-awesome-icon icon="fa-solid fa-xmark" style="color: #707070;" /></button>
-              </div>
-              
-            
+                @click="toglleModal = false"><font-awesome-icon icon="fa-solid fa-xmark"
+                  style="color: #707070;" /></button>
+            </div>
             <input v-bind="ViewSave()" :value="indexNote[1]" @input="event => indexNote[1] = event.target.value"
               class="text-2xl font-bold focus:outline-none dark:bg-zinc-900">
             <input v-bind="ViewSave()" :value="indexNote[2]" @input="event => indexNote[2] = event.target.value"
               class="overflow-auto focus:outline-none dark:bg-zinc-900">
-              
             <div class="items-baseline place-self-end">
-              
-              <button class="rounded-full hover:bg-gray-100 p-1 w-[30px] m-1 h-30px"
-                @click="removeNote"><font-awesome-icon icon="fa-solid fa-trash" style="color: #707070;" /></button>
-              <span v-if="toggleSave">
-                <button class="rounded-full hover:bg-gray-100 text-gray px-6 mt-1 py-1 w-3/12 mb-3 m-2"
-                @click="editeNote">Save</button>
+              <span v-if="toggleSave" class="{ buttonSave }">
+                <button id="buttonSave" class="rounded-full hover:bg-gray-100 text-gray px-2 my-0 py-0 w-12/12 mx-3"
+                  @click="editeNote">Save</button>
               </span>
-                
+              <div :class="{ shake: disabled }">
+                <span class="rounded-full hover:bg-gray-100 p-1 w-[30px] m-3 mb-5 h-30px"><font-awesome-icon
+                    icon="fa-solid fa-trash" style="color: #707070;" /></span>
+              </div>
             </div>
           </div>
         </div>

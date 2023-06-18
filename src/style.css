@@ -14,6 +14,9 @@
   -webkit-text-size-adjust: 100%;
 }
 
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap');
+
+
 a {
   font-weight: 500;
   color: #646cff;
@@ -62,17 +65,7 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
-button:hover {
-  /* border-color: #646cff; */
-  /* background: red;
-  transform: translateX(10px) scale(1.2); */
-}
-button:focus,
-button:focus-visible {
-  /* outline: 4px auto -webkit-focus-ring-color; */
-  /* background: red;
-  transform: translateX(10px) scale(1.2); */
-}
+
 
 .card {
   padding: 2em;
@@ -82,7 +75,7 @@ button:focus-visible {
   max-width: 100%;
   margin: 0 auto;
   padding: 2rem;
-  text-align: center;
+  /* text-align: center; */
 }
 
 @media (prefers-color-scheme: light) {
@@ -96,6 +89,74 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+@keyframes go-back1 {
+  0% {
+    color: transparent;      
+  }
+  0% {
+    color:#707070;      
+  }
+  
+}
+
+@keyframes go-back {
+  0% {
+    color: #707070;
+    transform: translate(0px) scale(1);
+      
+  }
+  100% {
+    color: green;
+    transform: translate(0px) scale(1.5);
+  }
+}
+
+.buttonSave {
+  animation: go-back 1s infinite alternate, go-back1 4s;
+  font-family: 'Baloo 2', cursive;
+}
+
+.shake {
+  animation: shake 1s forwards;
+  display: inline-block;
+}
+
+@keyframes shake {
+  from {
+    transform: translateX(-70px);
+  }
+  to {
+    
+    transform: translateX(-0px);
+  }
+}
+
+.teste {
+  /* text-align: center; */
+  text-align: center;
+}
+
+.returnTrash {
+  width: 50px;
+  height: 50px;
+  animation: returnTrash 1s;
+}
+
+@keyframes returnTrash {
+  from {
+    transform: translateX(0px);
+  }
+  to {
+    transform: translateX(1000px);
+  }
+}
+
+.saveButton{
+  color: #707070;
+  transition-timing-function: ease;
+  transition-duration: 2s;
 }
 
 @tailwind base;
