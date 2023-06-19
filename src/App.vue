@@ -12,7 +12,20 @@ const allNote = ref([]);
 const toglleTitle = ref(false);
 const toggleSave = ref(false);
 const disabled = ref(false)
+const screenWidth = ref(window.innerWidth)
+const toggleWidht = ref(false);
 
+function toglleScreen()  {
+  console.log(screenWidth.value)
+  if(screenWidth.value < 500) {
+    toggleWidht.value = true;
+    console.log("largura da tela", screenWidth.value)
+  }else{
+    toggleWidht.value = false;
+    console.log("largura da tela >500", screenWidth.value)
+  }
+  console.log("toggleWidth",toggleWidht)
+}
 
 const ViewSave = () => {
   if (indexNote.value[1] != indexNoteCopy.value[1] || indexNote.value[2] != indexNoteCopy.value[2]) {
@@ -90,7 +103,9 @@ const editeNote = () => {
 
 //load the function when page is opened
 onMounted(
-  reloadNote()
+  reloadNote(),
+  toglleScreen()
+  
 );
 
 </script>
@@ -106,7 +121,7 @@ onMounted(
           <input id="description" type="text" v-model="enteredDescription" placeholder="Escreva uma nota"
             class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
           <button id="btnsave" @click="addTitleDescription(index)"
-            class="bg-blue-500 hover:bg-blue-700 text-white-100 font-bold py-2 px-4 rounded">Salvar</button>
+            class="bg-blue-500 hover:bg-blue-700 text-white-950 font-bold py-2 px-4 rounded ">Salvar</button>
         </div>
       </div>
     </div>
@@ -120,6 +135,10 @@ onMounted(
           <p class="font-normal text-center dark:bg-zinc-900">{{ entered[0].description }}</p>
         </div>
       </div>
+    </div>
+    <!--Only screen < 500px-->
+    <div v-if="toglleScreen" class="items-baseline place-self-end">
+      <button>Criar Nota</button>
     </div>
     <!--modal-->
     <div>
