@@ -14,9 +14,11 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faUserSecret } from '@fortawesome/free-solid-svg-icons'
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faCirclePlus } from '@fortawesome/free-solid-svg-icons'
+
 
 /* add icons to the library */
-library.add(faUserSecret, faXmark, faTrash)
+library.add(faUserSecret, faXmark, faTrash, faCirclePlus)
 
 
 createApp(App)
