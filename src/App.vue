@@ -13,18 +13,18 @@ const toglleTitle = ref(false);
 const toggleSave = ref(false);
 const disabled = ref(false)
 const screenWidth = ref(window.innerWidth)
-const toggleWidht = ref(false);
+const toggleWidht = ref('');
 
 function toglleScreen()  {
   console.log(screenWidth.value)
   if(screenWidth.value < 500) {
     toggleWidht.value = true;
-    console.log("largura da tela", screenWidth.value)
+    console.log("largura da tela < 500", screenWidth.value)
   }else{
-    toggleWidht.value = false;
-    console.log("largura da tela >500", screenWidth.value)
+    //toggleWidht.value = false;
+    console.log("largura da tela > 500", screenWidth.value)
+    toggleWidht.value = true;
   }
-  console.log("toggleWidth",toggleWidht)
 }
 
 const ViewSave = () => {
@@ -137,8 +137,8 @@ onMounted(
       </div>
     </div>
     <!--Only screen < 500px-->
-    <div v-if="toglleScreen" class="items-baseline place-self-end">
-      <button>Criar Nota</button>
+    <div v-if="toggleWidht" class="items-end  place-self-end h-full bg-black inline-block align-bottom">
+      <button class="align-items"><font-awesome-icon icon="fa-solid fa-circle-plus" /></button>
     </div>
     <!--modal-->
     <div>
