@@ -16,6 +16,7 @@ const screenWidth = ref(window.innerWidth)
 const toggleWidht = ref('');
 const valueSearch = ref('');
 const allNoteLowerCase = ref([]);
+const searchResult = ref([]);
 
 async function noteWhitoutCharacters() {
   //Get data from database and reload notes
@@ -24,42 +25,79 @@ async function noteWhitoutCharacters() {
   const size = note[0].length;
 
   for (let i = 0; size > i; i++) {
-    const title = note[0][i].title;
-    const titleLower = note[0][i].title.toLowerCase(title);
-    const titleWithoutAccent = titleLower.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+    const title1 = note[0][i].title;
+    const titleLower = title1.toLowerCase(title1);
+    const title = titleLower.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
 
-    const description = note[0][i].description;
-    const descriptionLower = description.toLowerCase(description);
-    const descriptionWithoutAccent = descriptionLower.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+    const description1 = note[0][i].description;
+    const descriptionLower = description1.toLowerCase(description1);
+    const description = descriptionLower.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
 
     const id = note[0][i].id;
-    
-    allNoteLowerCase.value.push([{ titleWithoutAccent, descriptionWithoutAccent, id }])
+
+    allNoteLowerCase.value.push([{ title, description, id }])
   }
-  
+
 }
 
-const SearchNote = () => {
-  // // console.log(valueSearch.value)
+const searchNote = () => {
+
   // const arr = ['Geeks', 'gfg', 'GeeksforGeeks', 'abc'];
   // // const textSearched = allNote.value.filter(str => str.includes(valueSearch.value));
   // const textSearched = arr.filter(str => str.includes(valueSearch.value));
-  // console.log(textSearched);
-  
-  
+  //console.log(textSearched);
+
+  const size = allNoteLowerCase.value.length;
+
+  //console.log("size",size)
+  searchResult.value = "";
+  //console.log("size",)
+  for (let i = 0; i < size; i++) {
+    // console.log(valueSearch.value)
+    // console.log(allNoteLowerCase.value)
+    // console.log("size",size)
+
+    //const idArray = allNoteLowerCase.value[i][0].id;
+    const title = allNoteLowerCase.value[i][0].title;
+    const description = allNoteLowerCase.value[i][0].description;
+    const teste = title.indexOf(valueSearch.value)
+    // console.log("titulo", title)
+    const titleIndex = title.indexOf(valueSearch.value);
+    const descriptionIndex = description.indexOf(valueSearch.value);
+    console.log('Title',title)
+    console.log(titleIndex)
+    if (titleIndex >= 0 || descriptionIndex >= 0) {
+      console.log(titleIndex)
+      // const title = allNoteLowerCase.value[i][0].title;
+      // const description = allNoteLowerCase.value[i][0].description;
+      const id = allNoteLowerCase.value[i][0].id;
+      searchResult.value.push = [id, title, description];
+      //indexNoteCopy.value = [id, title, description];
+      //toggleModal.value = true;
+      
+    }
+    
+
+  }
+  console.log("Resultado", searchResult.value[1])
 
 
-  
+
+
+  //https://reqbin.com/code/javascript/i5foejaa/javascript-substring-example
+  // let str = 'JavaScript';
+
+  // console.log(str.indexOf('Script'));
 
 }
 
 
 
-function toggleScreen()  {
-  if(screenWidth.value < 500) {
+function toggleScreen() {
+  if (screenWidth.value < 500) {
     toggleWidht.value = true;
-    console.log("largura da tela < 500", screenWidth.value)
-  }else{
+    //console.log("largura da tela < 500", screenWidth.value)
+  } else {
     //toggleWidht.value = false;
     console.log("largura da tela > 500", screenWidth.value)
     toggleWidht.value = false;
@@ -145,16 +183,17 @@ onMounted(
   reloadNote(),
   toggleScreen(),
   noteWhitoutCharacters()
-  
+
 );
 
 </script>
 
 <template>
   <section class="h-screen flex flex-col w-full dark:bg-zinc-900">
-    <div class="flex justify-center shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] p-2 rounded-md dark:bg-zinc-900 mb-2">
-      <input v-bind="SearchNote()" @input="event => valueSearch = event.target.value " placeholder="Pesquise suas notas"
-              class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900">
+    <div
+      class="flex justify-center shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] p-2 rounded-md dark:bg-zinc-900 mb-2">
+      <input v-bind="searchNote()" @input="event => valueSearch = event.target.value" placeholder="Pesquise suas notas"
+        class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900">
     </div>
     <!-- Enter note when screen is large than 500px -->
     <div v-if="!toggleWidht" class="flex justify-center ">
@@ -186,12 +225,12 @@ onMounted(
     </div>
 
     <!-- button to enter note when screen is smaller than 500px -->
-    
-      <footer v-if="toggleWidht" class="sticky bottom-0 grid content-end place-self-end h-full align-bottom pb-12">
-        <button class="content-end"><font-awesome-icon icon="fa-solid fa-circle-plus" size="2xl"/>
-        </button>
-      </footer>      
-    
+
+    <footer v-if="toggleWidht" class="sticky bottom-0 grid content-end place-self-end h-full align-bottom pb-12">
+      <button class="content-end"><font-awesome-icon icon="fa-solid fa-circle-plus" size="2xl" />
+      </button>
+    </footer>
+
     <!--modal view note -->
     <div>
       <div class="fixed overflow-x-hidden overflow-y-auto inset-0 flex justify-center items-center z-50 overscroll-none "
@@ -214,9 +253,9 @@ onMounted(
               </span>
               <div :class="{ shake: disabled }">
                 <span class="rounded-full hover:bg-gray-100 p-1 w-[30px] m-3 mb-5 h-30px">
-                  <button @click="removeNote"><font-awesome-icon
-                    icon="fa-solid fa-trash" style="color: #707070;" /></button>
-                  </span>
+                  <button @click="removeNote"><font-awesome-icon icon="fa-solid fa-trash"
+                      style="color: #707070;" /></button>
+                </span>
               </div>
             </div>
           </div>
