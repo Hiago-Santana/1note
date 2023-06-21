@@ -48,9 +48,11 @@ const searchNote = () => {
   //console.log(textSearched);
 
   const size = allNoteLowerCase.value.length;
+  const testee = valueSearch.value.length;
+  //console.log("testee", testee)
 
   //console.log("size",size)
-  searchResult.value = "";
+  searchResult.value = [];
   //console.log("size",)
   for (let i = 0; i < size; i++) {
     // console.log(valueSearch.value)
@@ -64,22 +66,23 @@ const searchNote = () => {
     // console.log("titulo", title)
     const titleIndex = title.indexOf(valueSearch.value);
     const descriptionIndex = description.indexOf(valueSearch.value);
-    console.log('Title',title)
-    console.log(titleIndex)
-    if (titleIndex >= 0 || descriptionIndex >= 0) {
-      console.log(titleIndex)
+    
+    //console.log(titleIndex)
+    if ((titleIndex >= 0 || descriptionIndex >= 0) && valueSearch.value.length > 0) {
+      //console.log('Title',title)
       // const title = allNoteLowerCase.value[i][0].title;
       // const description = allNoteLowerCase.value[i][0].description;
       const id = allNoteLowerCase.value[i][0].id;
-      searchResult.value.push = [id, title, description];
+      searchResult.value.push([{id, title, description}]);
       //indexNoteCopy.value = [id, title, description];
       //toggleModal.value = true;
+      return "true"
       
     }
     
 
   }
-  console.log("Resultado", searchResult.value[1])
+  console.log("Resultado", searchResult.value)
 
 
 
@@ -182,7 +185,7 @@ const editeNote = () => {
 onMounted(
   reloadNote(),
   toggleScreen(),
-  noteWhitoutCharacters()
+  //noteWhitoutCharacters()
 
 );
 
