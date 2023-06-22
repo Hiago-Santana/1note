@@ -15,10 +15,11 @@ import { faUserSecret } from '@fortawesome/free-solid-svg-icons'
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons'
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 
 
 /* add icons to the library */
-library.add(faUserSecret, faXmark, faTrash, faCirclePlus)
+library.add(faUserSecret, faXmark, faTrash, faCirclePlus, faArrowLeft)
 
 
 createApp(App)

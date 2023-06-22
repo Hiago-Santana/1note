@@ -17,6 +17,8 @@ const toggleWidht = ref('');
 const valueSearch = ref('');
 const allNoteLowerCase = ref([]);
 const searchResult = ref([]);
+const toggleSearch = ref(false);
+
 
 async function noteWhitoutCharacters() {
   //Get data from database and reload notes
@@ -37,72 +39,55 @@ async function noteWhitoutCharacters() {
 
     allNoteLowerCase.value.push([{ title, description, id }])
   }
-
 }
 
 const searchNote = () => {
+  const content = valueSearch.value.length;
+  if (content > 0) {
+    toggleSearch.value = true;
+    const size = allNoteLowerCase.value.length;
+    const search1 = valueSearch.value;
+    const search1Lower = search1.toLowerCase(search1);
+    const search = search1Lower.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+    searchResult.value = [];
+    // console.log("size", size)
+    for (let i = 0; i < size; i++) {
 
-  // const arr = ['Geeks', 'gfg', 'GeeksforGeeks', 'abc'];
-  // // const textSearched = allNote.value.filter(str => str.includes(valueSearch.value));
-  // const textSearched = arr.filter(str => str.includes(valueSearch.value));
-  //console.log(textSearched);
-
-  const size = allNoteLowerCase.value.length;
-  const testee = valueSearch.value.length;
-  //console.log("testee", testee)
-
-  //console.log("size",size)
-  searchResult.value = [];
-  //console.log("size",)
-  for (let i = 0; i < size; i++) {
-    // console.log(valueSearch.value)
-    // console.log(allNoteLowerCase.value)
-    // console.log("size",size)
-
-    //const idArray = allNoteLowerCase.value[i][0].id;
-    const title = allNoteLowerCase.value[i][0].title;
-    const description = allNoteLowerCase.value[i][0].description;
-    const teste = title.indexOf(valueSearch.value)
-    // console.log("titulo", title)
-    const titleIndex = title.indexOf(valueSearch.value);
-    const descriptionIndex = description.indexOf(valueSearch.value);
-    
-    //console.log(titleIndex)
-    if ((titleIndex >= 0 || descriptionIndex >= 0) && valueSearch.value.length > 0) {
-      //console.log('Title',title)
-      // const title = allNoteLowerCase.value[i][0].title;
-      // const description = allNoteLowerCase.value[i][0].description;
-      const id = allNoteLowerCase.value[i][0].id;
-      searchResult.value.push([{id, title, description}]);
-      //indexNoteCopy.value = [id, title, description];
-      //toggleModal.value = true;
-      return "true"
-      
+      const title = allNoteLowerCase.value[i][0].title;
+      const description = allNoteLowerCase.value[i][0].description;
+      const titleIndex = title.indexOf(search);
+      const descriptionIndex = description.indexOf(search);
+      if (titleIndex >= 0 || descriptionIndex >= 0) {
+        const title = allNote.value[i][0].title;
+        const description = allNote.value[i][0].description;
+        const id = allNoteLowerCase.value[i][0].id;
+        searchResult.value.push([{ id, title, description }]);
+      }
     }
-    
 
-  }
-  console.log("Resultado", searchResult.value)
+  } else
+    if (searchResult.value.length > 0) {
+      toggleSearch.value = true;
+      console.log("content", content)
+      console.log("toggleSearch", toggleSearch.value)
+    }
+}
 
-
-
-
-  //https://reqbin.com/code/javascript/i5foejaa/javascript-substring-example
-  // let str = 'JavaScript';
-
-  // console.log(str.indexOf('Script'));
-
+const returnSearch = () => {
+  searchResult.value = "";
+  valueSearch.value = "";
+  toggleSearch.value = false;
 }
 
 
-
 function toggleScreen() {
+  screenWidth.value = window.innerWidth;
+  console.log("screenWidth",screenWidth)
   if (screenWidth.value < 500) {
     toggleWidht.value = true;
     //console.log("largura da tela < 500", screenWidth.value)
   } else {
     //toggleWidht.value = false;
-    console.log("largura da tela > 500", screenWidth.value)
     toggleWidht.value = false;
   }
 }
@@ -182,44 +167,35 @@ const editeNote = () => {
 }
 
 //load the function when page is opened
-onMounted(
+onMounted(() => {
   reloadNote(),
-  toggleScreen(),
-  //noteWhitoutCharacters()
-
-);
+    noteWhitoutCharacters(),
+    window.addEventListener('resize', toggleScreen)
+    toggleScreen();    
+});
 
 </script>
 
 <template>
   <section class="h-screen flex flex-col w-full dark:bg-zinc-900">
+
+    <!-- search value -->
     <div
       class="flex justify-center shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] p-2 rounded-md dark:bg-zinc-900 mb-2">
-      <input v-bind="searchNote()" @input="event => valueSearch = event.target.value" placeholder="Pesquise suas notas"
+      <span v-if="toggleSearch">
+        <button @click="returnSearch"><font-awesome-icon icon="fa-solid fa-arrow-left" /></button>
+      </span>
+      <input v-bind="searchNote()" :value="valueSearch" @input="event => valueSearch = event.target.value"
+        placeholder="Pesquise suas notas"
         class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900">
     </div>
-    <!-- Enter note when screen is large than 500px -->
-    <div v-if="!toggleWidht" class="flex justify-center ">
-      <div
-        class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] p-2 rounded-md dark:bg-zinc-900 mb-2">
-        <input @click="toggleTitle = true" id="title" type="text" v-model="enteredTitle" placeholder="Título"
-          class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
-        <div v-if="toggleTitle" class="">
-          <input id="description" type="text" v-model="enteredDescription" placeholder="Escreva uma nota"
-            class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
-          <button id="btnsave" @click="addTitleDescription(index)"
-            class="bg-blue-500 hover:bg-blue-700 text-white-950 font-bold py-2 px-4 rounded ">Salvar</button>
-        </div>
-      </div>
-    </div>
 
-    <!-- view saved notes -->
-
+    <!-- display search value -->
     <div class="">
       <div class="grid xl:grid-cols-9 xl:gap-4 md:grid-cols-5 md:gap-3 ph:grid-cols-2 ph:gap-2 dark:bg-zinc-900">
         <div
           class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] p-2 rounded-md mt-2 content-start break-words font-semibold hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] dark:bg-zinc-900"
-          v-for="entered in allNote" :key="entered" @click="viewNote(entered[0].id), toggleTitle = false">{{
+          v-for="entered in searchResult" :key="entered" @click="viewNote(entered[0].id), toggleTitle = false">{{
             entered[0].title
           }}
           <p class="font-normal text-center dark:bg-zinc-900">{{ entered[0].description }}</p>
@@ -227,14 +203,46 @@ onMounted(
       </div>
     </div>
 
-    <!-- button to enter note when screen is smaller than 500px -->
+    <!-- Enter note when screen is large than 500px -->
+    <div v-if="!toggleSearch">
+      <div v-if="!toggleWidht" class="flex justify-center ">
+        <div
+          class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] p-2 rounded-md dark:bg-zinc-900 mb-2">
+          <input @click="toggleTitle = true" id="title" type="text" v-model="enteredTitle" placeholder="Título"
+            class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
+          <div v-if="toggleTitle" class="">
+            <input id="description" type="text" v-model="enteredDescription" placeholder="Escreva uma nota"
+              class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
+            <button id="btnsave" @click="addTitleDescription(index)"
+              class="bg-blue-500 hover:bg-blue-700 text-white-950 font-bold py-2 px-4 rounded ">Salvar</button>
+          </div>
+        </div>
+      </div>
 
-    <footer v-if="toggleWidht" class="sticky bottom-0 grid content-end place-self-end h-full align-bottom pb-12">
-      <button class="content-end"><font-awesome-icon icon="fa-solid fa-circle-plus" size="2xl" />
-      </button>
-    </footer>
+      <!-- view saved notes -->
 
-    <!--modal view note -->
+      <div class="">
+        <div class="grid xl:grid-cols-7 xl:gap-4 md:grid-cols-5 md:gap-3 ph:grid-cols-2 ph:gap-2 dark:bg-zinc-900">
+          <div
+            class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] p-2 rounded-md mt-2 content-start break-words font-semibold hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] dark:bg-zinc-900"
+            v-for="entered in allNote" :key="entered" @click="viewNote(entered[0].id), toggleTitle = false">{{
+              entered[0].title
+            }}
+            <p class="font-normal text-center dark:bg-zinc-900">{{ entered[0].description }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- button to enter note when screen is smaller than 500px -->
+
+      <footer v-if="toggleWidht" class="sticky bottom-0 grid justify-items-end content-end h-full pb-8">
+        <button class="content-end"><font-awesome-icon icon="fa-solid fa-circle-plus" size="2xl" />
+        </button>
+      </footer>
+
+      <!--modal view note -->
+
+    </div>
     <div>
       <div class="fixed overflow-x-hidden overflow-y-auto inset-0 flex justify-center items-center z-50 overscroll-none "
         v-if="toggleModal">
@@ -264,7 +272,7 @@ onMounted(
           </div>
         </div>
       </div>
-      <div v-if="toggleModal" class="absolute z-40 inset-0 opacity-25 bg-black overscroll-none">
+      <div v-if="toggleModal" class="absolute z-40 inset-0 opacity-70 bg-black overscroll-none">
       </div>
     </div>
   </section>
