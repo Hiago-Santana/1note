@@ -82,7 +82,6 @@ const returnSearch = () => {
 
 function toggleScreen() {
   screenWidth.value = window.innerWidth;
-  console.log("screenWidth",screenWidth)
   if (screenWidth.value < 500) {
     toggleWidht.value = true;
     //console.log("largura da tela < 500", screenWidth.value)
