@@ -193,7 +193,7 @@ onMounted(() => {
 
 <template>
   <section>
-    <nav v-if="!toggleModal" class="w-full sticky top-0 bg-white p-5 drop-shadow shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)]">
+    <nav v-if="!toggleModal" class="w-full sticky top-0 bg-white p-5 drop-shadow shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)]  dark:bg-zinc-900 mb-2">
       
       <div
           class="flex justify-center bg-gray-100 p-2 rounded-md dark:bg-zinc-700 mb-2">
@@ -304,7 +304,7 @@ onMounted(() => {
       <!-- button to enter note when width screen is smaller than 500px -->
 
       <footer v-if="toggleWidht && !toggleSearch" class="sticky bottom-0 grid justify-items-end content-end h-full pb-8">
-        <button @click="buttonEnterNote = true"><font-awesome-icon icon="fa-solid fa-circle-plus" size="2xl" />
+        <button @click="buttonEnterNote = true, toggleModal = true"><font-awesome-icon icon="fa-solid fa-circle-plus" size="2xl" />
         </button>
       </footer>
 
@@ -324,7 +324,7 @@ onMounted(() => {
             icon="fa-solid fa-trash" style="color: #707070;" />
         </button>
       </div>
-      <input v-bind="ViewSave()" :value="indexNote[1]" @input="event => indexNote[1] = event.target.value"
+      <input v-bind="ViewSave()" :value="indexNote[1]" @input="event => indexNote[1] = event.target.value" placeholder="Título"
         class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
       <!-- <input type="text" rows="4" v-model="enteredDescription" placeholder="Escreva uma nota"
         class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900 h-96 bg-black" />  -->
