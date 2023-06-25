@@ -143,16 +143,16 @@ async function addTitleDescription(index) {
   //Add title and description to database
   const title = enteredTitle.value;
   const description = enteredDescription.value;
-  if(title !="" && description !=""){
+  if (title != "" || description != "") {
     await addNote(title, description);
-  const note = [await readAllNote()];
-  const size = note[0].length - 1;
-  const id = note[0][size].id;
-  allNote.value.push([{ title, description, id }])
-  enteredTitle.value = "";
-  enteredDescription.value = "";
-  toggleTitle.value = false;
-  
+    const note = [await readAllNote()];
+    const size = note[0].length - 1;
+    const id = note[0][size].id;
+    allNote.value.push([{ title, description, id }])
+    enteredTitle.value = "";
+    enteredDescription.value = "";
+    toggleTitle.value = false;
+    noteWhitoutCharacters();
   }
   buttonEnterNote.value = false;
   console.log(buttonEnterNote);
@@ -173,6 +173,7 @@ const editeNote = () => {
   const description = indexNote.value[2];
   setNote(id, title, description);
   reloadNote();
+  noteWhitoutCharacters();
   toggleModal.value = false;
 }
 
@@ -191,44 +192,59 @@ onMounted(() => {
 </script>
 
 <template>
-  <section >
-    <div v-if="!buttonEnterNote" class="h-screen flex flex-col w-full dark:bg-zinc-900">
-      <!-- search value -->
+  <section>
+    <nav v-if="!toggleModal" class="w-full sticky top-0 bg-white p-5 drop-shadow shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)]">
+      
       <div
-        class="flex justify-center shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] p-2 rounded-md dark:bg-zinc-900 mb-2">
-        <span v-if="toggleSearch">
-          <button @click="returnSearch"><font-awesome-icon icon="fa-solid fa-arrow-left" /></button>
-        </span>
-        <input v-bind="searchNote()" :value="valueSearch" @input="event => valueSearch = event.target.value"
-          placeholder="Pesquise suas notas"
-          class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900">
-      </div>
+          class="flex justify-center bg-gray-100 p-2 rounded-md dark:bg-zinc-700 mb-2">
+          <span v-if="toggleSearch">
+            <button @click="returnSearch"><font-awesome-icon icon="fa-solid fa-arrow-left" /></button>
+          </span>
+          <input v-bind="searchNote()" :value="valueSearch" @input="event => valueSearch = event.target.value"
+            placeholder="Pesquise suas notas"
+            class="bg-gray-100  break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-600">
+        </div>
 
-      <!-- display search value -->
-      <div class="">
-        <div class="grid xl:grid-cols-9 xl:gap-4 md:grid-cols-5 md:gap-3 ph:grid-cols-2 ph:gap-2 dark:bg-zinc-900">
-          <div
-            class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] p-2 rounded-md mt-2 content-start break-words font-semibold hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] dark:bg-zinc-900"
-            v-for="entered in searchResult" :key="entered" @click="viewNote(entered[0].id), toggleTitle = false">{{
-              entered[0].title
-            }}
-            <p class="font-normal text-center dark:bg-zinc-900">{{ entered[0].description }}</p>
+    </nav>
+    <div v-if="!buttonEnterNote && !toggleModal" class="h-screen flex flex-col w-full dark:bg-zinc-900 p-[2rem]">
+      <div>
+        <!-- search value -->
+        
+
+        <!-- display search value -->
+        <div class="">
+          <div class="grid xl:grid-cols-9 xl:gap-4 md:grid-cols-5 md:gap-3 ph:grid-cols-2 ph:gap-2 dark:bg-zinc-900">
+            <div
+              class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] p-2 rounded-md mt-2 content-start break-words font-semibold hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] dark:bg-zinc-900"
+              v-for="entered in searchResult" :key="entered" @click="viewNote(entered[0].id), toggleTitle = false">{{
+                entered[0].title
+              }}
+              <p class="font-normal text-center dark:bg-zinc-900">{{ entered[0].description }}</p>
+            </div>
           </div>
         </div>
       </div>
+
 
       <!-- Enter note when screen is large than 500px -->
       <div v-if="!toggleSearch">
         <div v-if="!toggleWidht" class="flex justify-center ">
           <div
-            class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] p-2 rounded-md dark:bg-zinc-900 mb-2">
+            class="w-[30rem] shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] p-2 rounded-md dark:bg-zinc-900 mb-2">
+            <div v-if="toggleTitle" class="grid grid-cols-2">
+              <button class="place-self-start"
+                @click="addTitleDescription(index), toggleTitle = false, toggleModal = false"><font-awesome-icon
+                  icon="fa-solid fa-arrow-left" /></button>
+              <button @click="toggleTitle = false, enteredTitle = null, enteredDescription = null"
+                class="place-self-end"><font-awesome-icon icon="fa-solid fa-trash" style="color: #707070;" />
+              </button>
+            </div>
             <input @click="toggleTitle = true" id="title" type="text" v-model="enteredTitle" placeholder="Título"
-              class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
-            <div v-if="toggleTitle" class="">
-              <input id="description" type="text" v-model="enteredDescription" placeholder="Escreva uma nota"
-                class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
-              <button id="btnsave" @click="addTitleDescription(index)"
-                class="bg-blue-500 hover:bg-blue-700 text-white-950 font-bold py-2 px-4 rounded ">Salvar</button>
+              class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
+            <div v-if="toggleTitle">
+              <textarea v-model="enteredDescription" rows="5" autoResize
+                class="m-1 overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-zinc-900"
+                placeholder="Criar uma nota" required style=""></textarea>
             </div>
           </div>
         </div>
@@ -242,17 +258,16 @@ onMounted(() => {
               v-for="entered in allNote" :key="entered" @click="viewNote(entered[0].id), toggleTitle = false">{{
                 entered[0].title
               }}
-              <p class="font-normal text-center dark:bg-zinc-900">{{ entered[0].description }}</p>
+              <p class="font-normal text-left dark:bg-zinc-900">{{ entered[0].description }}</p>
             </div>
           </div>
         </div>
-
-        
-
-        <!--modal view note -->
-
       </div>
-      <div>
+
+
+
+      <!--modal view note -->
+      <!-- <div>
         <div
           class="fixed overflow-x-hidden overflow-y-auto inset-0 flex justify-center items-center z-50 overscroll-none "
           v-if="toggleModal">
@@ -284,29 +299,54 @@ onMounted(() => {
         </div>
         <div v-if="toggleModal" class="absolute z-40 inset-0 opacity-70 bg-black overscroll-none">
         </div>
-      </div>
-      <!-- button to enter note when screen is smaller than 500px -->
+      </div> -->
+
+      <!-- button to enter note when width screen is smaller than 500px -->
 
       <footer v-if="toggleWidht && !toggleSearch" class="sticky bottom-0 grid justify-items-end content-end h-full pb-8">
-          <button @click="buttonEnterNote = true" class="content-end"><font-awesome-icon icon="fa-solid fa-circle-plus"
-              size="2xl" />
-          </button>
-        </footer>
+        <button @click="buttonEnterNote = true"><font-awesome-icon icon="fa-solid fa-circle-plus" size="2xl" />
+        </button>
+      </footer>
+
     </div>
 
-    <div v-if="buttonEnterNote" class="h-screen">
+
+    <!-- Edit note when screen width is smallet than 500px -->
+    <div v-if="toggleModal" class="p-[2rem]">
+      <div class="grid grid-cols-2">
+        <button class="place-self-start"
+          @click="addTitleDescription(index), editeNote(), toggleModal = false"><font-awesome-icon
+            icon="fa-solid fa-arrow-left" /></button>
+        <!-- <span class="place-self-center"><button v-if="toggleSave" id="buttonSave"
+            class="font-medium place-self-center rounded-full hover:bg-gray-100 text-gray px-2 my-0 py-0 w-12/12 mx-3"
+            @click="editeNote">Save</button></span> -->
+        <button @click="toggleModal = false, removeNote()" class="place-self-end"><font-awesome-icon
+            icon="fa-solid fa-trash" style="color: #707070;" />
+        </button>
+      </div>
+      <input v-bind="ViewSave()" :value="indexNote[1]" @input="event => indexNote[1] = event.target.value"
+        class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
+      <!-- <input type="text" rows="4" v-model="enteredDescription" placeholder="Escreva uma nota"
+        class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900 h-96 bg-black" />  -->
+      <textarea v-bind="ViewSave()" :value="indexNote[2]" @input="event => indexNote[2] = event.target.value" rows="35"
+        class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-zinc-900"
+        placeholder="Nota" required style=""></textarea>
+    </div>
+
+    <div v-if="buttonEnterNote" class="p-[2rem]">
       <div>
         <button @click="addTitleDescription(index)"><font-awesome-icon icon="fa-solid fa-arrow-left" /></button>
+        <!-- <button @click="addTitleDescription(index)"
+          class="bg-blue-500 hover:bg-blue-700 text-white-950 font-bold py-2 mb-10 px-4 rounded ">Salvar</button> -->
       </div>
-    
-        <input type="text" v-model="enteredTitle" placeholder="Título"
-        class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
-      <input type="text" v-model="enteredDescription" placeholder="Escreva uma nota"
-        class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
-        <div class="sticky bottom-0 grid justify-items-end content-end h-full pb-8">
-        <button id="btnsave" @click="addTitleDescription(index)"
-          class="bg-blue-500 hover:bg-blue-700 text-white-950 font-bold py-2 mb-10 px-4 rounded ">Salvar</button>
-      </div> 
+      <input type="text" v-model="enteredTitle" placeholder="Título"
+        class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
+      <!-- <input type="text" rows="4" v-model="enteredDescription" placeholder="Escreva uma nota"
+        class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900 h-96 bg-black" />  -->
+      <textarea v-model="enteredDescription" rows="35"
+        class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-zinc-900"
+        placeholder="Nota" required style=""></textarea>
+
     </div>
   </section>
 </template>

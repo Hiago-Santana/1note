@@ -74,7 +74,8 @@ button {
 #app {
   max-width: 100%;
   margin: 0 auto;
-  padding: 2rem;
+  /* padding: 2rem; */
+  padding-bottom: 0;
   /* text-align: center; */
 }
 
