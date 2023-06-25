@@ -77,7 +77,6 @@ const searchNote = () => {
       }
     valueSearchCopy.value = valueSearch.value;
   }
-
 }
 
 const returnSearch = () => {
@@ -193,49 +192,43 @@ onMounted(() => {
 
 <template>
   <section>
-    <nav v-if="!toggleModal" class="w-full sticky top-0 bg-white p-5 drop-shadow shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)]  dark:bg-zinc-900 mb-2">
-      
-      <div
-          class="flex justify-center bg-gray-100 p-2 rounded-md dark:bg-zinc-700 mb-2">
-          <span v-if="toggleSearch">
-            <button @click="returnSearch"><font-awesome-icon icon="fa-solid fa-arrow-left" /></button>
-          </span>
-          <input v-bind="searchNote()" :value="valueSearch" @input="event => valueSearch = event.target.value"
-            placeholder="Pesquise suas notas"
-            class="bg-gray-100  break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-600">
-        </div>
 
+    <!-- header -->
+    <nav v-if="!toggleModal"
+      class="w-full sticky top-0 bg-white p-2 drop-shadow shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)]  dark:bg-zinc-900 mb-2">
+      <div class="flex justify-center bg-gray-100 p-2 rounded-md dark:bg-zinc-800">
+        <span v-if="toggleSearch">
+          <button @click="returnSearch"><font-awesome-icon icon="fa-solid fa-arrow-left" /></button>
+        </span>
+        <input v-bind="searchNote()" :value="valueSearch" @input="event => valueSearch = event.target.value"
+          placeholder="Pesquise suas notas"
+          class="bg-gray-100  break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-800">
+      </div>
     </nav>
-    <div v-if="!buttonEnterNote && !toggleModal" class="h-screen flex flex-col w-full dark:bg-zinc-900 p-[2rem]">
-      <div>
-        <!-- search value -->
-        
 
-        <!-- display search value -->
-        <div class="">
-          <div class="grid xl:grid-cols-9 xl:gap-4 md:grid-cols-5 md:gap-3 ph:grid-cols-2 ph:gap-2 dark:bg-zinc-900">
-            <div
-              class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] p-2 rounded-md mt-2 content-start break-words font-semibold hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] dark:bg-zinc-900"
-              v-for="entered in searchResult" :key="entered" @click="viewNote(entered[0].id), toggleTitle = false">{{
-                entered[0].title
-              }}
-              <p class="font-normal text-center dark:bg-zinc-900">{{ entered[0].description }}</p>
-            </div>
-          </div>
+    <!-- Body -->
+    <div v-if="!buttonEnterNote && !toggleModal" class="h-screen flex flex-col w-full dark:bg-zinc-900 p-[2rem] py-0">
+      <div class="grid xl:grid-cols-9 xl:gap-4 md:grid-cols-5 md:gap-3 ph:grid-cols-2 ph:gap-2 dark:bg-zinc-900">
+        <div
+          class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] p-2 rounded-md mt-2 content-start break-words font-semibold hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] dark:bg-zinc-900"
+          v-for="entered in searchResult" :key="entered" @click="viewNote(entered[0].id), toggleTitle = false">{{
+            entered[0].title
+          }}
+          <p class="font-normal text-center dark:bg-zinc-900">{{ entered[0].description }}</p>
         </div>
       </div>
-
 
       <!-- Enter note when screen is large than 500px -->
       <div v-if="!toggleSearch">
         <div v-if="!toggleWidht" class="flex justify-center ">
           <div
-            class="w-[30rem] shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] p-2 rounded-md dark:bg-zinc-900 mb-2">
+            class="w-[30rem] shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] p-1 rounded-md dark:bg-zinc-900 mb-2">
             <div v-if="toggleTitle" class="grid grid-cols-2">
               <button class="place-self-start"
                 @click="addTitleDescription(index), toggleTitle = false, toggleModal = false"><font-awesome-icon
                   icon="fa-solid fa-arrow-left" /></button>
-              <button @click="toggleTitle = false, enteredTitle = null, enteredDescription = null"
+              <button v-if="enteredTitle || enteredDescription"
+                @click="toggleTitle = false, enteredTitle = null, enteredDescription = null"
                 class="place-self-end"><font-awesome-icon icon="fa-solid fa-trash" style="color: #707070;" />
               </button>
             </div>
@@ -250,7 +243,6 @@ onMounted(() => {
         </div>
 
         <!-- view saved notes -->
-
         <div class="">
           <div class="grid xl:grid-cols-7 xl:gap-4 md:grid-cols-5 md:gap-3 ph:grid-cols-2 ph:gap-2 dark:bg-zinc-900">
             <div
@@ -304,15 +296,14 @@ onMounted(() => {
       <!-- button to enter note when width screen is smaller than 500px -->
 
       <footer v-if="toggleWidht && !toggleSearch" class="sticky bottom-0 grid justify-items-end content-end h-full pb-8">
-        <button @click="buttonEnterNote = true, toggleModal = true"><font-awesome-icon icon="fa-solid fa-circle-plus" size="2xl" />
+        <button @click="buttonEnterNote = true, toggleModal = true"><font-awesome-icon icon="fa-solid fa-circle-plus"
+            size="2xl" />
         </button>
       </footer>
-
     </div>
 
-
     <!-- Edit note when screen width is smallet than 500px -->
-    <div v-if="toggleModal" class="p-[2rem]">
+    <div v-if="toggleModal && !buttonEnterNote" class="p-[2rem]">
       <div class="grid grid-cols-2">
         <button class="place-self-start"
           @click="addTitleDescription(index), editeNote(), toggleModal = false"><font-awesome-icon
@@ -324,7 +315,8 @@ onMounted(() => {
             icon="fa-solid fa-trash" style="color: #707070;" />
         </button>
       </div>
-      <input v-bind="ViewSave()" :value="indexNote[1]" @input="event => indexNote[1] = event.target.value" placeholder="Título"
+      <input v-bind="ViewSave()" :value="indexNote[1]" @input="event => indexNote[1] = event.target.value"
+        placeholder="Título"
         class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
       <!-- <input type="text" rows="4" v-model="enteredDescription" placeholder="Escreva uma nota"
         class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900 h-96 bg-black" />  -->
@@ -333,20 +325,19 @@ onMounted(() => {
         placeholder="Nota" required style=""></textarea>
     </div>
 
+    <!-- Add note when screen width is smallet than 500px -->
     <div v-if="buttonEnterNote" class="p-[2rem]">
       <div>
-        <button @click="addTitleDescription(index)"><font-awesome-icon icon="fa-solid fa-arrow-left" /></button>
-        <!-- <button @click="addTitleDescription(index)"
-          class="bg-blue-500 hover:bg-blue-700 text-white-950 font-bold py-2 mb-10 px-4 rounded ">Salvar</button> -->
+        <button @click="addTitleDescription(index), toggleModal = false"><font-awesome-icon
+            icon="fa-solid fa-arrow-left" /></button>
       </div>
       <input type="text" v-model="enteredTitle" placeholder="Título"
         class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
       <!-- <input type="text" rows="4" v-model="enteredDescription" placeholder="Escreva uma nota"
         class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900 h-96 bg-black" />  -->
       <textarea v-model="enteredDescription" rows="35"
-        class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-zinc-900"
+        class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 m-2 bg-white border-0 dark:bg-zinc-900"
         placeholder="Nota" required style=""></textarea>
-
     </div>
   </section>
 </template>
