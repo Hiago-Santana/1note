@@ -194,8 +194,9 @@ onMounted(() => {
   <section>
 
     <!-- header -->
+    <!-- sticky linha 199 e  299-->
     <nav v-if="!toggleModal"
-      class="w-full sticky top-0 bg-white p-2 drop-shadow shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)]  dark:bg-zinc-900 mb-2">
+      class="sticky w-full top-0 bg-white p-2 drop-shadow shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)]  dark:bg-zinc-900 mb-2">
       <div class="flex justify-center bg-gray-100 p-2 rounded-md dark:bg-zinc-800">
         <span v-if="toggleSearch">
           <button @click="returnSearch"><font-awesome-icon icon="fa-solid fa-arrow-left" /></button>
@@ -243,15 +244,13 @@ onMounted(() => {
         </div>
 
         <!-- view saved notes -->
-        <div class="">
-          <div class="grid xl:grid-cols-7 xl:gap-4 md:grid-cols-5 md:gap-3 ph:grid-cols-2 ph:gap-2 dark:bg-zinc-900">
-            <div
-              class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] p-2 rounded-md mt-2 content-start break-words font-semibold hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] dark:bg-zinc-900"
-              v-for="entered in allNote" :key="entered" @click="viewNote(entered[0].id), toggleTitle = false">{{
-                entered[0].title
-              }}
-              <p class="font-normal text-left dark:bg-zinc-900">{{ entered[0].description }}</p>
-            </div>
+        <div class="grid xl:grid-cols-7 xl:gap-4 md:grid-cols-5 md:gap-3 ph:grid-cols-2 ph:gap-2 dark:bg-zinc-900 pb-4">
+          <div
+            class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] p-2 rounded-md mt-2 content-start break-words font-semibold hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] dark:bg-zinc-900"
+            v-for="entered in allNote" :key="entered" @click="viewNote(entered[0].id), toggleTitle = false">{{
+              entered[0].title
+            }}
+            <p class="font-normal text-left dark:bg-zinc-900">{{ entered[0].description }}</p>
           </div>
         </div>
       </div>
@@ -295,7 +294,7 @@ onMounted(() => {
 
       <!-- button to enter note when width screen is smaller than 500px -->
 
-      <footer v-if="toggleWidht && !toggleSearch" class="sticky bottom-0 grid justify-items-end content-end h-full pb-8">
+      <footer v-if="toggleWidht && !toggleSearch" class="fixed bottom-0 rigth-0 pb-4 place-self-end">
         <button @click="buttonEnterNote = true, toggleModal = true"><font-awesome-icon icon="fa-solid fa-circle-plus"
             size="2xl" />
         </button>
@@ -327,9 +326,13 @@ onMounted(() => {
 
     <!-- Add note when screen width is smallet than 500px -->
     <div v-if="buttonEnterNote" class="p-[2rem]">
-      <div>
-        <button @click="addTitleDescription(index), toggleModal = false"><font-awesome-icon
+      <div class="grid grid-cols-2" >
+        <button @click="addTitleDescription(index), toggleModal = false" class="place-self-start"><font-awesome-icon
             icon="fa-solid fa-arrow-left" /></button>
+        <button v-if="enteredTitle || enteredDescription"
+          @click="buttonEnterNote = false, toggleModal = false, enteredTitle = null, enteredDescription = null"
+          class="place-self-end"><font-awesome-icon icon="fa-solid fa-trash" style="color: #707070;" />
+        </button>
       </div>
       <input type="text" v-model="enteredTitle" placeholder="Título"
         class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
