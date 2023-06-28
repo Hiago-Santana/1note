@@ -2,6 +2,8 @@
 
 import { onMounted, ref } from 'vue'
 import { addNote, readAllNote, deleteNote, setNote } from './components/indexeddb'
+//import {  loadSearchNote } from './components/searchFlex'
+
 
 const enteredTitle = ref('');
 const enteredDescription = ref('');
@@ -20,6 +22,7 @@ const searchResult = ref([]);
 const toggleSearch = ref(false);
 const valueSearchCopy = ref();
 const buttonEnterNote = ref(false);
+const searchFlexNote = ref();
 
 
 async function noteWhitoutCharacters() {
@@ -129,6 +132,7 @@ async function reloadNote() {
   allNote.value = [];
   const note = [await readAllNote()];
   const size = note[0].length;
+  //searchFlexNote.value = loadSearchNote ();
 
   for (let i = 0; size > i; i++) {
     const title = note[0][i].title;
@@ -136,6 +140,7 @@ async function reloadNote() {
     const id = note[0][i].id;
     allNote.value.push([{ title, description, id }])
   }
+  console.log("searchFlexNote",searchFlexNote)
 }
 
 async function addTitleDescription(index) {
