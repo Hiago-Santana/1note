@@ -1,7 +1,7 @@
 <script setup>
 
 import { onMounted, ref } from 'vue'
-import { addNote, readAllNote, deleteNote, setNote } from './components/indexeddb'
+import { addNote, readAllNote, deleteNote, setNote, openDataBase } from './components/indexeddb'
 //import {  loadSearchNote } from './components/searchFlex'
 import Index from 'flexsearch';
 
@@ -100,31 +100,57 @@ async function noteWhitoutCharacters() {
 //   }
 // }
 
-const searchNote = () => {
+
+async function searchNote() {
   if (valueSearchCopy.value != valueSearch.value) {
     const content = valueSearch.value.length;
     if (content > 0) {
       toggleSearch.value = true;
-      const size = allNoteLowerCase.value.length;
+      //const size = allNoteLowerCase.value.length;
       const search1 = valueSearch.value;
       const search1Lower = search1.toLowerCase(search1);
-      const search = search1Lower.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+      //const search = search1Lower.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
       searchResult.value = [];
       // console.log("size", size)
 
-      for (let i = 0; i < size; i++) {
-        const title = allNoteLowerCase.value[i].title;
-        const description = allNoteLowerCase.value[i].description;
-        const titleIndex = title.indexOf(search);
-        const descriptionIndex = description.indexOf(search);
+      // for (let i = 0; i < size; i++) {
+      //   const title = allNoteLowerCase.value[i].title;
+      //   const description = allNoteLowerCase.value[i].description;
+      //   const titleIndex = title.indexOf(search);
+      //   const descriptionIndex = description.indexOf(search);
 
-        if (titleIndex >= 0 || descriptionIndex >= 0) {
-          const title = allNote.value[i].title;
-          const description = allNote.value[i].description;
-          const id = allNoteLowerCase.value[i].id;
-          searchResult.value.push([{ id, title, description }]);
-        }
-      }
+      //   if (titleIndex >= 0 || descriptionIndex >= 0) {
+      //     const title = allNote.value[i].title;
+      //     const description = allNote.value[i].description;
+      //     const id = allNoteLowerCase.value[i].id;
+      //     searchResult.value.push([{ id, title, description }]);
+      //   }
+      // }
+
+      const teste = valueSearch.value
+      const result = index.value.search(teste);
+      const size = result.length;
+      console.log("result",result)
+      console.log("indexvalue", index.value)
+      console.log("size",size)
+
+      // for (let i = 0; i <= size; i++) {
+      //   const id = result[i];
+      //   const sizeAllNote = allNote.value.length;
+      //   console.log("idAllNote", sizeAllNote)
+      //   for (let i = 0; i <= sizeAllNote; i++) {
+
+      //     if (id == allNote.value[i].id) {
+      //       const title = allNote.value[i].title;
+      //       const description = allNote.value[1].description;
+      //       searchResult.value.push([{ id, title, description }]);
+      //       console.log("title", title);
+      //       console.log("description", description);
+      //     }
+
+      //   }
+
+      // }
 
     } else
       if (searchResult.value.length > 0) {
@@ -133,8 +159,47 @@ const searchNote = () => {
         console.log("toggleSearch", toggleSearch.value)
       }
     valueSearchCopy.value = valueSearch.value;
+
+    console.log("valor procurado", valueSearch.value)
   }
 }
+
+
+// const searchNote = () => {
+//   if (valueSearchCopy.value != valueSearch.value) {
+//     const content = valueSearch.value.length;
+//     if (content > 0) {
+//       toggleSearch.value = true;
+//       const size = allNoteLowerCase.value.length;
+//       const search1 = valueSearch.value;
+//       const search1Lower = search1.toLowerCase(search1);
+//       const search = search1Lower.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+//       searchResult.value = [];
+//       // console.log("size", size)
+
+//       for (let i = 0; i < size; i++) {
+//         const title = allNoteLowerCase.value[i].title;
+//         const description = allNoteLowerCase.value[i].description;
+//         const titleIndex = title.indexOf(search);
+//         const descriptionIndex = description.indexOf(search);
+
+//         if (titleIndex >= 0 || descriptionIndex >= 0) {
+//           const title = allNote.value[i].title;
+//           const description = allNote.value[i].description;
+//           const id = allNoteLowerCase.value[i].id;
+//           searchResult.value.push([{ id, title, description }]);
+//         }
+//       }
+
+//     } else
+//       if (searchResult.value.length > 0) {
+//         toggleSearch.value = true;
+//         console.log("content", content)
+//         console.log("toggleSearch", toggleSearch.value)
+//       }
+//     valueSearchCopy.value = valueSearch.value;
+//   }
+// }
 
 
 const returnSearch = () => {
@@ -170,9 +235,9 @@ const viewNote = (id) => {
   //see note when clicked 
   const size = allNote.value.length;
   for (let i = 0; i < size; i++) {
-    const idArray = allNote.value[i].id;    
+    const idArray = allNote.value[i].id;
     if (idArray === id) {
-      indexNote.value = "";      
+      indexNote.value = "";
       const title = allNote.value[i].title;
       const description = allNote.value[i].description;
       indexNote.value = [id, title, description];
@@ -180,7 +245,7 @@ const viewNote = (id) => {
       toggleModal.value = true;
     }
   }
-  console.log("indexNote",indexNote.value)
+  console.log("indexNote", indexNote.value)
 }
 
 async function reloadNote() {
@@ -194,7 +259,7 @@ async function reloadNote() {
   // index.value.add(222, "Jhon Doe",)
   // index.value.add(223,"Hiago Santana")
 
-  
+
   const size = allNote.value.length;
 
 
@@ -207,14 +272,16 @@ async function reloadNote() {
     const description = allNote.value[i].description;
     const id = allNote.value[i].id;
     //allNote.value.push([{ title, description, id }])
-    index.value.add(id,title);
-    index.value.append(id,description)
+    index.value.add(id, title);
+    index.value.append(id, description)
 
   }
-  const search = index.value.search("tietl")
+  const search = index.value.search("Titulo")
+  const searcsize = search.length;
   //console.log("searchFlexNote",searchFlexNote)
-  console.log("index",index.value)
-  console.log("search",search)
+  console.log("index", index.value)
+  console.log("search", search)
+  console.log("searchsize", searcsize)
   //console.log("allNote.value",allNote.value)
 }
 
@@ -268,7 +335,7 @@ onMounted(() => {
     noteWhitoutCharacters(),
     window.addEventListener('resize', toggleScreen),
     toggleScreen();
-    // teste();
+  // teste();
 });
 
 </script>
@@ -378,8 +445,8 @@ onMounted(() => {
       <!-- button to enter note when width screen is smaller than 500px -->
 
       <footer v-if="toggleWidht && !toggleSearch" class="fixed bottom-0 rigth-0 pb-4 place-self-end">
-        <button @click="buttonEnterNote = true, toggleModal = true, teste()"><font-awesome-icon icon="fa-solid fa-circle-plus"
-            size="2xl" />
+        <button @click="buttonEnterNote = true, toggleModal = true, teste()"><font-awesome-icon
+            icon="fa-solid fa-circle-plus" size="2xl" />
         </button>
       </footer>
     </div>
@@ -409,7 +476,7 @@ onMounted(() => {
 
     <!-- Add note when screen width is smallet than 500px -->
     <div v-if="buttonEnterNote" class="p-[2rem]">
-      <div class="grid grid-cols-2" >
+      <div class="grid grid-cols-2">
         <button @click="addTitleDescription(index), toggleModal = false" class="place-self-start"><font-awesome-icon
             icon="fa-solid fa-arrow-left" /></button>
         <button v-if="enteredTitle || enteredDescription"

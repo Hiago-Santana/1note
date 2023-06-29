@@ -1,6 +1,6 @@
 import { openDB, deleteDB, wrap, unwrap } from "idb";
 
-function openDataBase() {
+export function openDataBase() {
   return new Promise((resolve, reject) => {
     const db = openDB("noteDB", 1, {
       upgrade(db) {
