@@ -3,6 +3,7 @@
 import { onMounted, ref } from 'vue'
 import { addNote, readAllNote, deleteNote, setNote } from './components/indexeddb'
 //import {  loadSearchNote } from './components/searchFlex'
+import Index from 'flexsearch';
 
 
 const enteredTitle = ref('');
@@ -22,29 +23,82 @@ const searchResult = ref([]);
 const toggleSearch = ref(false);
 const valueSearchCopy = ref();
 const buttonEnterNote = ref(false);
-const searchFlexNote = ref();
+
+//const index = ref(new FlexSearch({}))
+
+const index = ref(new Index());
+
+
+
+
+
+// const teste = () => {
+//   index.value.add(22,"teste")
+//   const tes = index.value.search("teste dafd")
+//   console.log("Teste",tes)
+// }
+
+
+
 
 
 async function noteWhitoutCharacters() {
   //Get data from database and reload notes
   allNoteLowerCase.value = [];
-  const note = [await readAllNote()];
-  const size = note[0].length;
+  const note = await readAllNote();
+  const size = note.length;
+  //console.log("note",note)
 
   for (let i = 0; size > i; i++) {
-    const title1 = note[0][i].title;
+    const title1 = note[i].title;
     const titleLower = title1.toLowerCase(title1);
     const title = titleLower.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
 
-    const description1 = note[0][i].description;
+    const description1 = note[i].description;
     const descriptionLower = description1.toLowerCase(description1);
     const description = descriptionLower.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
 
-    const id = note[0][i].id;
+    const id = note[i].id;
 
     allNoteLowerCase.value.push([{ title, description, id }])
   }
 }
+
+// const searchNote = () => {
+//   if (valueSearchCopy.value != valueSearch.value) {
+//     const content = valueSearch.value.length;
+//     if (content > 0) {
+//       toggleSearch.value = true;
+//       const size = allNoteLowerCase.value.length;
+//       const search1 = valueSearch.value;
+//       const search1Lower = search1.toLowerCase(search1);
+//       const search = search1Lower.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+//       searchResult.value = [];
+//       // console.log("size", size)
+
+//       for (let i = 0; i < size; i++) {
+//         const title = allNoteLowerCase.value[i].title;
+//         const description = allNoteLowerCase.value[i].description;
+//         const titleIndex = title.indexOf(search);
+//         const descriptionIndex = description.indexOf(search);
+
+//         if (titleIndex >= 0 || descriptionIndex >= 0) {
+//           const title = allNote.value[i].title;
+//           const description = allNote.value[i].description;
+//           const id = allNoteLowerCase.value[i].id;
+//           searchResult.value.push([{ id, title, description }]);
+//         }
+//       }
+
+//     } else
+//       if (searchResult.value.length > 0) {
+//         toggleSearch.value = true;
+//         console.log("content", content)
+//         console.log("toggleSearch", toggleSearch.value)
+//       }
+//     valueSearchCopy.value = valueSearch.value;
+//   }
+// }
 
 const searchNote = () => {
   if (valueSearchCopy.value != valueSearch.value) {
@@ -59,15 +113,15 @@ const searchNote = () => {
       // console.log("size", size)
 
       for (let i = 0; i < size; i++) {
-        const title = allNoteLowerCase.value[i][0].title;
-        const description = allNoteLowerCase.value[i][0].description;
+        const title = allNoteLowerCase.value[i].title;
+        const description = allNoteLowerCase.value[i].description;
         const titleIndex = title.indexOf(search);
         const descriptionIndex = description.indexOf(search);
 
         if (titleIndex >= 0 || descriptionIndex >= 0) {
-          const title = allNote.value[i][0].title;
-          const description = allNote.value[i][0].description;
-          const id = allNoteLowerCase.value[i][0].id;
+          const title = allNote.value[i].title;
+          const description = allNote.value[i].description;
+          const id = allNoteLowerCase.value[i].id;
           searchResult.value.push([{ id, title, description }]);
         }
       }
@@ -81,6 +135,7 @@ const searchNote = () => {
     valueSearchCopy.value = valueSearch.value;
   }
 }
+
 
 const returnSearch = () => {
   searchResult.value = "";
@@ -115,32 +170,52 @@ const viewNote = (id) => {
   //see note when clicked 
   const size = allNote.value.length;
   for (let i = 0; i < size; i++) {
-    const idArray = allNote.value[i][0].id;
+    const idArray = allNote.value[i].id;    
     if (idArray === id) {
-      indexNote.value = "";
-      const title = allNote.value[i][0].title;
-      const description = allNote.value[i][0].description;
+      indexNote.value = "";      
+      const title = allNote.value[i].title;
+      const description = allNote.value[i].description;
       indexNote.value = [id, title, description];
       indexNoteCopy.value = [id, title, description];
       toggleModal.value = true;
     }
   }
+  console.log("indexNote",indexNote.value)
 }
 
 async function reloadNote() {
   //Get data from database and reload notes
   allNote.value = [];
-  const note = [await readAllNote()];
-  const size = note[0].length;
+  //const note = await readAllNote();
+  const note = await readAllNote();
+  allNote.value = await readAllNote();
+
+  //index.value.add = await readAllNote();
+  // index.value.add(222, "Jhon Doe",)
+  // index.value.add(223,"Hiago Santana")
+
+  
+  const size = allNote.value.length;
+
+
+
+
   //searchFlexNote.value = loadSearchNote ();
 
   for (let i = 0; size > i; i++) {
-    const title = note[0][i].title;
-    const description = note[0][i].description;
-    const id = note[0][i].id;
-    allNote.value.push([{ title, description, id }])
+    const title = allNote.value[i].title;
+    const description = allNote.value[i].description;
+    const id = allNote.value[i].id;
+    //allNote.value.push([{ title, description, id }])
+    index.value.add(id,title);
+    index.value.append(id,description)
+
   }
-  console.log("searchFlexNote",searchFlexNote)
+  const search = index.value.search("tietl")
+  //console.log("searchFlexNote",searchFlexNote)
+  console.log("index",index.value)
+  console.log("search",search)
+  //console.log("allNote.value",allNote.value)
 }
 
 async function addTitleDescription(index) {
@@ -149,10 +224,12 @@ async function addTitleDescription(index) {
   const description = enteredDescription.value;
   if (title != "" || description != "") {
     await addNote(title, description);
-    const note = [await readAllNote()];
-    const size = note[0].length - 1;
-    const id = note[0][size].id;
-    allNote.value.push([{ title, description, id }])
+    const note = await readAllNote();
+    allNote.value = note;
+
+    // const size = note.length - 1;
+    // const id = note[size].id;
+    // allNote.value.push([{ title, description, id }])
     enteredTitle.value = "";
     enteredDescription.value = "";
     toggleTitle.value = false;
@@ -191,6 +268,7 @@ onMounted(() => {
     noteWhitoutCharacters(),
     window.addEventListener('resize', toggleScreen),
     toggleScreen();
+    // teste();
 });
 
 </script>
@@ -217,10 +295,10 @@ onMounted(() => {
       <div class="grid xl:grid-cols-9 xl:gap-4 md:grid-cols-5 md:gap-3 ph:grid-cols-2 ph:gap-2 dark:bg-zinc-900">
         <div
           class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] p-2 rounded-md mt-2 content-start break-words font-semibold hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] dark:bg-zinc-900"
-          v-for="entered in searchResult" :key="entered" @click="viewNote(entered[0].id), toggleTitle = false">{{
-            entered[0].title
+          v-for="entered in searchResult" :key="entered" @click="viewNote(entered.id), toggleTitle = false">{{
+            entered.title
           }}
-          <p class="font-normal text-center dark:bg-zinc-900">{{ entered[0].description }}</p>
+          <p class="font-normal text-center dark:bg-zinc-900">{{ entered.description }}</p>
         </div>
       </div>
 
@@ -252,10 +330,10 @@ onMounted(() => {
         <div class="grid xl:grid-cols-7 xl:gap-4 md:grid-cols-5 md:gap-3 ph:grid-cols-2 ph:gap-2 dark:bg-zinc-900 pb-4">
           <div
             class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)]  p-2 rounded-md mt-2 content-start break-words font-semibold hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] dark:bg-zinc-900 dark:shadow-none dark:border-2 dark:border-gray-700"
-            v-for="entered in allNote" :key="entered" @click="viewNote(entered[0].id), toggleTitle = false">{{
-              entered[0].title
+            v-for="entered in allNote" :key="entered" @click="viewNote(entered.id), toggleTitle = false">{{
+              entered.title
             }}
-            <p class="font-normal text-left dark:bg-zinc-900">{{ entered[0].description }}</p>
+            <p class="font-normal text-left dark:bg-zinc-900">{{ entered.description }}</p>
           </div>
         </div>
       </div>
@@ -300,7 +378,7 @@ onMounted(() => {
       <!-- button to enter note when width screen is smaller than 500px -->
 
       <footer v-if="toggleWidht && !toggleSearch" class="fixed bottom-0 rigth-0 pb-4 place-self-end">
-        <button @click="buttonEnterNote = true, toggleModal = true"><font-awesome-icon icon="fa-solid fa-circle-plus"
+        <button @click="buttonEnterNote = true, toggleModal = true, teste()"><font-awesome-icon icon="fa-solid fa-circle-plus"
             size="2xl" />
         </button>
       </footer>
