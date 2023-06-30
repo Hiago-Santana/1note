@@ -127,30 +127,32 @@ async function searchNote() {
       //   }
       // }
 
-      const teste = valueSearch.value
-      const result = index.value.search(teste);
+      const result = index.value.search(search1);
       const size = result.length;
       console.log("result",result)
       console.log("indexvalue", index.value)
       console.log("size",size)
 
-      // for (let i = 0; i <= size; i++) {
-      //   const id = result[i];
-      //   const sizeAllNote = allNote.value.length;
-      //   console.log("idAllNote", sizeAllNote)
-      //   for (let i = 0; i <= sizeAllNote; i++) {
+      for (let i = 0; i < size; i++) {
+        const id = result[i];
+        const sizeAllNote = allNote.value.length;
+        console.log("idAllNote", sizeAllNote)
+        console.log("i1",i)
+        for (let a = 0; a <= sizeAllNote; a++) {
+          console.log("a",a)
+          if (id == allNote.value[a].id) {
+            const title = allNote.value[a].title;
+            const description = allNote.value[a].description;
+            searchResult.value.push([{ id, title, description }]);
+            console.log("title", title);
+            console.log("description", description);
+            console.log("searchResult",searchResult.value)
+          }
 
-      //     if (id == allNote.value[i].id) {
-      //       const title = allNote.value[i].title;
-      //       const description = allNote.value[1].description;
-      //       searchResult.value.push([{ id, title, description }]);
-      //       console.log("title", title);
-      //       console.log("description", description);
-      //     }
+        }
 
-      //   }
-
-      // }
+      }
+      
 
     } else
       if (searchResult.value.length > 0) {
@@ -261,7 +263,7 @@ async function reloadNote() {
 
 
   const size = allNote.value.length;
-
+  console.log("size",size)
 
 
 
@@ -281,7 +283,7 @@ async function reloadNote() {
   //console.log("searchFlexNote",searchFlexNote)
   console.log("index", index.value)
   console.log("search", search)
-  console.log("searchsize", searcsize)
+  //console.log("searchsize", searcsize)
   //console.log("allNote.value",allNote.value)
 }
 
