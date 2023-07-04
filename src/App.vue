@@ -48,7 +48,6 @@ const index = ref(new Index({ tokenize: "full" }));
 // }
 
 async function searchNote() {
-
   if (valueSearchCopy.value != valueSearch.value) {
 
     const teste = await readAllNote();
