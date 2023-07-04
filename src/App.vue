@@ -25,34 +25,40 @@ const valueSearchCopy = ref();
 const buttonEnterNote = ref(false);
 const index = ref(new Index({ tokenize: "full" }));
 
-async function noteWhitoutCharacters() {
-  //Get data from database and reload notes
-  allNoteLowerCase.value = [];
-  const note = await readAllNote();
-  const size = note.length;
-  //console.log("note",note)
+// async function noteWhitoutCharacters() {
+//   //Get data from database and reload notes
+//   allNoteLowerCase.value = [];
+//   const note = await readAllNote();
+//   const size = note.length;
+//   //console.log("note",note)
 
-  for (let i = 0; size > i; i++) {
-    const title1 = note[i].title;
-    const titleLower = title1.toLowerCase(title1);
-    const title = titleLower.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+//   for (let i = 0; size > i; i++) {
+//     const title1 = note[i].title;
+//     const titleLower = title1.toLowerCase(title1);
+//     const title = titleLower.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
 
-    const description1 = note[i].description;
-    const descriptionLower = description1.toLowerCase(description1);
-    const description = descriptionLower.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+//     const description1 = note[i].description;
+//     const descriptionLower = description1.toLowerCase(description1);
+//     const description = descriptionLower.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
 
-    const id = note[i].id;
+//     const id = note[i].id;
 
-    allNoteLowerCase.value.push([{ title, description, id }])
-  }
-}
+//     allNoteLowerCase.value.push([{ title, description, id }])
+//   }
+// }
 
 async function searchNote() {
+
   if (valueSearchCopy.value != valueSearch.value) {
+
+    const teste = await readAllNote();
     valueSearchCopy.value = valueSearch.value;
-    console.log("valueSearch.value",valueSearch.value)
+    console.log("valueSearch.value", valueSearch.value)
     const content = valueSearch.value.length;
     if (content > 0) {
+      // allNote.value = [];
+      // allNote.value = await readAllNote()
+      console.log("teste", teste)
       toggleSearch.value = true;
       searchResult.value = [];
       const result = index.value.search(valueSearch.value);
@@ -60,8 +66,8 @@ async function searchNote() {
 
       for (let i = 0; i < size; i++) {
         const id = result[i];
-        const title = allNote.value.find(Element => Element.id == id).title
-        const description = allNote.value.find(Element => Element.id == id).description
+        const title = teste.find(Element => Element.id == id).title
+        const description = teste.find(Element => Element.id == id).description
         //const resultSearch = [];
         searchResult.value.push([{ id, title, description }]);
       }
@@ -70,7 +76,7 @@ async function searchNote() {
         toggleSearch.value = true;
       }
   }
-  console.log("searchNote",searchResult.value)
+  console.log("searchNote", searchResult.value)
 }
 
 const returnSearch = () => {
@@ -122,20 +128,20 @@ const viewNote = (id) => {
 async function reloadNote() {
   //Get data from database and reload notes
   allNote.value = [];
-  allNote.value = await readAllNote();
+  allNote.value = await readAllNote()
   const size = allNote.value.length;
-  console.log("allNote.value",allNote.value)
+  console.log("allNote.value", allNote.value)
 
   for (let i = 0; size >= i; i++) {
     const title = allNote.value[i].title;
-    console.log("title",title)
+    console.log("title", title)
     const description = allNote.value[i].description;
     const id = allNote.value[i].id;
     //allNote.value.push([{ title, description, id }])
     index.value.add(id, title);
     index.value.append(id, description)
   }
-  console.log("index.value",index.value)
+  console.log("index.value", index.value)
 }
 
 async function addTitleDescription(index) {
@@ -149,7 +155,7 @@ async function addTitleDescription(index) {
     enteredTitle.value = "";
     enteredDescription.value = "";
     toggleTitle.value = false;
-    noteWhitoutCharacters();
+    //noteWhitoutCharacters();
     reloadNote();
   }
   buttonEnterNote.value = false;
@@ -162,28 +168,28 @@ const removeNote = () => {
   deleteNote(id);
   reloadNote();
   valueSearchCopy.value = null;
-searchNote();
+  searchNote();
   toggleModal.value = false;
-  console.log("id",id)
-  console.log("indexbefore",index.value)
-//   //index.value.remove(id)
-//   //const indexsearch = searchResult.value.indexOf.id(id)
-//   console.log("searchResultBefore",searchResult.value[1][0].id)
+  console.log("id", id)
+  console.log("indexbefore", index.value)
+  //   //index.value.remove(id)
+  //   //const indexsearch = searchResult.value.indexOf.id(id)
+  //   console.log("searchResultBefore",searchResult.value[1][0].id)
 
-//   for(var i = 0; i <= searchResult.value.length - 1; i++){
-//     if(searchResult.value[i][0].id == id){
-//       searchResult.value[i].splice(0,3);
-//     }
-// }
-// console.log("searchResultAfter",searchResult.value)
-  
-//   //const myNewArray = searchResult.value.filter(function(item){ return item[0] != id})
-//   console.log("myNewArray",myNewArray)
-//   console.log("indexsearch",indexsearch)
-//   console.log("indexAfter",index.value)
-//   //valueSearchCopy.value = null;
-//   //searchNote();
-//reloadNote();
+  //   for(var i = 0; i <= searchResult.value.length - 1; i++){
+  //     if(searchResult.value[i][0].id == id){
+  //       searchResult.value[i].splice(0,3);
+  //     }
+  // }
+  // console.log("searchResultAfter",searchResult.value)
+
+  //   //const myNewArray = searchResult.value.filter(function(item){ return item[0] != id})
+  //   console.log("myNewArray",myNewArray)
+  //   console.log("indexsearch",indexsearch)
+  //   console.log("indexAfter",index.value)
+  //   //valueSearchCopy.value = null;
+  //   //searchNote();
+  //reloadNote();
 
 
 }
@@ -195,14 +201,14 @@ const editeNote = () => {
   const description = indexNote.value[2];
   setNote(id, title, description);
   reloadNote();
-  noteWhitoutCharacters();
+  //noteWhitoutCharacters();
   toggleModal.value = false;
 }
 
 //load the function when page is opened
 onMounted(() => {
   reloadNote(),
-    noteWhitoutCharacters(),
+    // noteWhitoutCharacters(),
     window.addEventListener('resize', toggleScreen),
     toggleScreen();
 });
@@ -276,8 +282,8 @@ onMounted(() => {
 
       <!-- button to enter note when width screen is smaller than 500px -->
       <footer v-if="toggleWidht && !toggleSearch" class="fixed bottom-0 rigth-0 pb-4 place-self-end">
-        <button @click="buttonEnterNote = true, toggleModal = true, teste()"><font-awesome-icon
-            icon="fa-solid fa-circle-plus" size="2xl" />
+        <button @click="buttonEnterNote = true, toggleModal = true"><font-awesome-icon icon="fa-solid fa-circle-plus"
+            size="2xl" />
         </button>
       </footer>
     </div>
