@@ -22,11 +22,8 @@ export function openDataBase() {
 }
 
 export async function addNote(title, description) {
-  const dateNow = new Date();
-  const idValue = dateNow.getTime();
   const db = await openDataBase();
-  db.add("note", {title, description});
-  
+  db.add("note", {title, description});  
   const store = db.transaction('note').store;
   const cursor = await store.openCursor();
 }
@@ -42,7 +39,7 @@ export async function deleteNote(id) {
   db.delete("note", id);
 }
 
-export async function setNote(id1,title1,description1) {
+export async function setNote(id,title,description) {
   const db = await openDataBase();
-  await db.put("note",{id: id1, title: title1, description: description1})  
+  await db.put("note",{id: id, title: title, description: description})  
 }

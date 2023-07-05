@@ -1,10 +1,8 @@
 <script setup>
 
 import { onMounted, ref } from 'vue'
-import { addNote, readAllNote, deleteNote, setNote, openDataBase } from './components/indexeddb'
-//import {  loadSearchNote } from './components/searchFlex'
+import { addNote, readAllNote, deleteNote, setNote } from './components/indexeddb'
 import Index from 'flexsearch';
-
 
 const enteredTitle = ref('');
 const enteredDescription = ref('');
@@ -18,46 +16,17 @@ const disabled = ref(false)
 const screenWidth = ref(window.innerWidth)
 const toggleWidht = ref('');
 const valueSearch = ref('');
-const allNoteLowerCase = ref([]);
 const searchResult = ref([]);
 const toggleSearch = ref(false);
 const valueSearchCopy = ref();
 const buttonEnterNote = ref(false);
 const index = new Index({ tokenize: "full" });
 
-// async function noteWhitoutCharacters() {
-//   //Get data from database and reload notes
-//   allNoteLowerCase.value = [];
-//   const note = await readAllNote();
-//   const size = note.length;
-//   //console.log("note",note)
-
-//   for (let i = 0; size > i; i++) {
-//     const title1 = note[i].title;
-//     const titleLower = title1.toLowerCase(title1);
-//     const title = titleLower.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
-
-//     const description1 = note[i].description;
-//     const descriptionLower = description1.toLowerCase(description1);
-//     const description = descriptionLower.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
-
-//     const id = note[i].id;
-
-//     allNoteLowerCase.value.push([{ title, description, id }])
-//   }
-// }
-
 async function searchNote() {
   if (valueSearchCopy.value != valueSearch.value) {
-
-    const teste = await readAllNote();
     valueSearchCopy.value = valueSearch.value;
-    console.log("valueSearch.value", valueSearch.value)
     const content = valueSearch.value.length;
     if (content > 0) {
-      // allNote.value = [];
-      // allNote.value = await readAllNote()
-      console.log("teste", teste)
       toggleSearch.value = true;
       searchResult.value = [];
       const result = index.search(valueSearch.value);
@@ -65,9 +34,8 @@ async function searchNote() {
 
       for (let i = 0; i < size; i++) {
         const id = result[i];
-        const title = teste.find(Element => Element.id == id).title
-        const description = teste.find(Element => Element.id == id).description
-        //const resultSearch = [];
+        const title = allNote.value.find(Element => Element.id == id).title
+        const description = allNote.value.find(Element => Element.id == id).description
         searchResult.value.push([{ id, title, description }]);
       }
     } else
@@ -75,7 +43,6 @@ async function searchNote() {
         toggleSearch.value = true;
       }
   }
-  console.log("searchNote", searchResult.value)
 }
 
 const returnSearch = () => {
@@ -88,22 +55,8 @@ function toggleScreen() {
   screenWidth.value = window.innerWidth;
   if (screenWidth.value < 500) {
     toggleWidht.value = true;
-    //console.log("largura da tela < 500", screenWidth.value)
   } else {
-    //toggleWidht.value = false;
     toggleWidht.value = false;
-  }
-}
-
-const ViewSave = () => {
-  if (indexNote.value[1] != indexNoteCopy.value[1] || indexNote.value[2] != indexNoteCopy.value[2]) {
-    setTimeout(() => {
-      toggleSave.value = true;
-    }, 150)
-    disabled.value = true;
-  } else {
-    toggleSave.value = false;
-    disabled.value = false;
   }
 }
 
@@ -121,27 +74,20 @@ const viewNote = (id) => {
       toggleModal.value = true;
     }
   }
-  console.log("indexNote", indexNote.value)
 }
 
 async function reloadNote() {
-  //Get data from database and reload notes
-  
+  //Get data from database and reload notes  
   allNote.value = await readAllNote()
   const size = allNote.value.length;
-  console.log("allNote.value", allNote.value)
-  
 
   for (let i = 0; i < size; i++) {
     const title = allNote.value[i].title;
-    console.log("title", title)
     const description = allNote.value[i].description;
     const id = allNote.value[i].id;
-    //allNote.value.push([{ title, description, id }])
     index.add(id, title);
     index.append(id, description)
   }
-  console.log("index.value", index.value)
 }
 
 async function addTitleDescription(index) {
@@ -155,11 +101,9 @@ async function addTitleDescription(index) {
     enteredTitle.value = "";
     enteredDescription.value = "";
     toggleTitle.value = false;
-    //noteWhitoutCharacters();
     reloadNote();
   }
   buttonEnterNote.value = false;
-  console.log(buttonEnterNote);
 }
 
 const removeNote = () => {
@@ -171,28 +115,6 @@ const removeNote = () => {
   valueSearchCopy.value = null;
   searchNote();
   toggleModal.value = false;
-  console.log("id", id)
-  console.log("indexbefore", index.value)
-  //   //index.value.remove(id)
-  //   //const indexsearch = searchResult.value.indexOf.id(id)
-  //   console.log("searchResultBefore",searchResult.value[1][0].id)
-
-  //   for(var i = 0; i <= searchResult.value.length - 1; i++){
-  //     if(searchResult.value[i][0].id == id){
-  //       searchResult.value[i].splice(0,3);
-  //     }
-  // }
-  // console.log("searchResultAfter",searchResult.value)
-
-  //   //const myNewArray = searchResult.value.filter(function(item){ return item[0] != id})
-  //   console.log("myNewArray",myNewArray)
-  //   console.log("indexsearch",indexsearch)
-  //   console.log("indexAfter",index.value)
-  //   //valueSearchCopy.value = null;
-  //   //searchNote();
-  //reloadNote();
-
-
 }
 
 const editeNote = () => {
@@ -202,14 +124,13 @@ const editeNote = () => {
   const description = indexNote.value[2];
   setNote(id, title, description);
   reloadNote();
-  //noteWhitoutCharacters();
+  searchNote();
   toggleModal.value = false;
 }
 
 //load the function when page is opened
 onMounted(() => {
   reloadNote(),
-    // noteWhitoutCharacters(),
     window.addEventListener('resize', toggleScreen),
     toggleScreen();
 });
@@ -219,8 +140,7 @@ onMounted(() => {
 <template>
   <section>
 
-    <!-- header -->
-    <!-- sticky linha 199 e  299-->
+    <!-- Search -->
     <nav v-if="!toggleModal"
       class="sticky w-full top-0 bg-white p-2 drop-shadow shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)]  dark:bg-zinc-900 mb-2">
       <div class="flex justify-center bg-gray-100 p-2 rounded-md dark:bg-zinc-800">
@@ -233,7 +153,7 @@ onMounted(() => {
       </div>
     </nav>
 
-    <!-- Body -->
+    <!-- Search Result -->
     <div v-if="!buttonEnterNote && !toggleModal" class="h-screen flex flex-col w-full dark:bg-zinc-900 p-[2rem] py-0">
       <div class="grid xl:grid-cols-9 xl:gap-4 md:grid-cols-5 md:gap-3 ph:grid-cols-2 ph:gap-2 dark:bg-zinc-900">
         <div
@@ -287,10 +207,11 @@ onMounted(() => {
             size="2xl" />
         </button>
       </footer>
+
     </div>
 
     <!-- Edit note when screen width is smallet than 500px -->
-    <div v-if="toggleModal && !buttonEnterNote" class="p-[2rem]">
+    <div v-if="toggleModal && !buttonEnterNote && toggleWidht" class="p-[2rem]">
       <div class="grid grid-cols-2">
         <button class="place-self-start"
           @click="addTitleDescription(index), editeNote(), toggleModal = false"><font-awesome-icon
@@ -299,12 +220,9 @@ onMounted(() => {
             icon="fa-solid fa-trash" style="color: #707070;" />
         </button>
       </div>
-      <input v-bind="ViewSave()" :value="indexNote[1]" @input="event => indexNote[1] = event.target.value"
-        placeholder="Título"
+      <input :value="indexNote[1]" @input="event => indexNote[1] = event.target.value" placeholder="Título"
         class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
-      <!-- <input type="text" rows="4" v-model="enteredDescription" placeholder="Escreva uma nota"
-        class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900 h-96 bg-black" />  -->
-      <textarea v-bind="ViewSave()" :value="indexNote[2]" @input="event => indexNote[2] = event.target.value" rows="35"
+      <textarea :value="indexNote[2]" @input="event => indexNote[2] = event.target.value" rows="35"
         class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-zinc-900 m-1"
         placeholder="Nota" required style=""></textarea>
     </div>
@@ -321,12 +239,74 @@ onMounted(() => {
       </div>
       <input type="text" v-model="enteredTitle" placeholder="Título"
         class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
-      <!-- <input type="text" rows="4" v-model="enteredDescription" placeholder="Escreva uma nota"
-        class="break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900 h-96 bg-black" />  -->
       <textarea v-model="enteredDescription" rows="35"
         class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 m-2 bg-white border-0 dark:bg-zinc-900"
         placeholder="Nota" required style=""></textarea>
     </div>
+
+
+
+    <div v-if="toggleModal && !buttonEnterNote && !toggleWidht" class="relative z-10" aria-labelledby="modal-title"
+      role="dialog" aria-modal="true">
+        <!--
+      Background backdrop, show/hide based on modal state.
+
+      Entering: "ease-out duration-300"
+        From: "opacity-0"
+        To: "opacity-100"
+      Leaving: "ease-in duration-200"
+        From: "opacity-100"
+        To: "opacity-0"
+      -->
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+
+      <div class="fixed inset-0 z-10 overflow-y-auto">
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+          <!--
+        Modal panel, show/hide based on modal state.
+
+        Entering: "ease-out duration-300"
+          From: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+          To: "opacity-100 translate-y-0 sm:scale-100"
+        Leaving: "ease-in duration-200"
+          From: "opacity-100 translate-y-0 sm:scale-100"
+          To: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+      -->
+          <div
+            class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+            <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+              <div class="sm:flex sm:items-start">
+
+                <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+
+                  <div class="grid grid-cols-2">
+                    <button class="place-self-start"
+                      @click="addTitleDescription(index), editeNote(), toggleModal = false"><font-awesome-icon
+                        icon="fa-solid fa-arrow-left" /></button>
+                    <button @click="toggleModal = false, removeNote()" class="place-self-end"><font-awesome-icon
+                        icon="fa-solid fa-trash" style="color: #707070;" />
+                    </button>
+                  </div>
+                  <input :value="indexNote[1]" @input="event => indexNote[1] = event.target.value" placeholder="Título"
+                    class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
+                  <textarea :value="indexNote[2]" @input="event => indexNote[2] = event.target.value" rows="35"
+                    class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-zinc-900 m-1"
+                    placeholder="Nota" required style=""></textarea>
+
+
+
+                  <div class="mt-2">
+
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
   </section>
 </template>
 
