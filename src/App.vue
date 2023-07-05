@@ -126,6 +126,7 @@ const editeNote = () => {
   reloadNote();
   searchNote();
   toggleModal.value = false;
+  const teste = "";
 }
 
 //load the function when page is opened
