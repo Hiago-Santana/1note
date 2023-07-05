@@ -23,7 +23,7 @@ const searchResult = ref([]);
 const toggleSearch = ref(false);
 const valueSearchCopy = ref();
 const buttonEnterNote = ref(false);
-const index = ref(new Index({ tokenize: "full" }));
+const index = new Index({ tokenize: "full" });
 
 // async function noteWhitoutCharacters() {
 //   //Get data from database and reload notes
@@ -60,7 +60,7 @@ async function searchNote() {
       console.log("teste", teste)
       toggleSearch.value = true;
       searchResult.value = [];
-      const result = index.value.search(valueSearch.value);
+      const result = index.search(valueSearch.value);
       const size = result.length;
 
       for (let i = 0; i < size; i++) {
@@ -126,19 +126,20 @@ const viewNote = (id) => {
 
 async function reloadNote() {
   //Get data from database and reload notes
-  allNote.value = [];
+  
   allNote.value = await readAllNote()
   const size = allNote.value.length;
   console.log("allNote.value", allNote.value)
+  
 
-  for (let i = 0; size >= i; i++) {
+  for (let i = 0; i < size; i++) {
     const title = allNote.value[i].title;
     console.log("title", title)
     const description = allNote.value[i].description;
     const id = allNote.value[i].id;
     //allNote.value.push([{ title, description, id }])
-    index.value.add(id, title);
-    index.value.append(id, description)
+    index.add(id, title);
+    index.append(id, description)
   }
   console.log("index.value", index.value)
 }
@@ -165,6 +166,7 @@ const removeNote = () => {
   //Delete note
   const id = indexNote.value[0];
   deleteNote(id);
+  index.remove(id);
   reloadNote();
   valueSearchCopy.value = null;
   searchNote();
