@@ -11,8 +11,6 @@ const toggleModal = ref(false);
 const indexNoteCopy = ref([]);
 const allNote = ref([]);
 const toggleTitle = ref(false);
-const toggleSave = ref(false);
-const disabled = ref(false)
 const screenWidth = ref(window.innerWidth)
 const toggleWidht = ref('');
 const valueSearch = ref('');
@@ -21,6 +19,7 @@ const toggleSearch = ref(false);
 const valueSearchCopy = ref();
 const buttonEnterNote = ref(false);
 const index = new Index({ tokenize: "full" });
+const noNote = ref(false);
 
 async function searchNote() {
   if (valueSearchCopy.value != valueSearch.value) {
@@ -88,6 +87,10 @@ async function reloadNote() {
     index.add(id, title);
     index.append(id, description)
   }
+
+  if(size == 0){
+    noNote.value = true;
+  }
 }
 
 async function addTitleDescription(index) {
@@ -101,8 +104,12 @@ async function addTitleDescription(index) {
     enteredTitle.value = "";
     enteredDescription.value = "";
     toggleTitle.value = false;
+    noNote.value = false;
     reloadNote();
-  }
+  }else{
+    if(allNote.value == ""){
+      noNote.value = true}
+    }
   buttonEnterNote.value = false;
 }
 
@@ -138,10 +145,11 @@ onMounted(() => {
 </script>
 
 <template>
-  <section>
+  <section class="">
 
+    <div v-if="!noNote || !toggleWidht">
     <!-- Search -->
-    <nav v-if="!toggleModal"
+    <nav v-if="!toggleModal && !noNote || toggleModal && !toggleWidht && !noNote"
       class="sticky w-full top-0 bg-white p-2 drop-shadow shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)]  dark:bg-zinc-900 mb-2">
       <div class="flex justify-center bg-gray-100 p-2 rounded-md dark:bg-zinc-800">
         <span v-if="toggleSearch">
@@ -154,7 +162,7 @@ onMounted(() => {
     </nav>
 
     <!-- Search Result -->
-    <div v-if="!buttonEnterNote && !toggleModal" class="h-screen flex flex-col w-full dark:bg-zinc-900 p-[2rem] py-0">
+    <div v-if="!buttonEnterNote && !toggleModal" class=" flex flex-col w-full dark:bg-zinc-900 p-[2rem] py-0">
       <div class="grid xl:grid-cols-9 xl:gap-4 md:grid-cols-5 md:gap-3 ph:grid-cols-2 ph:gap-2 dark:bg-zinc-900">
         <div
           class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] p-2 rounded-md mt-2 content-start break-words font-semibold hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] dark:bg-zinc-900"
@@ -164,50 +172,50 @@ onMounted(() => {
           <p class="font-normal text-start dark:bg-zinc-900">{{ entered[0].description }}</p>
         </div>
       </div>
+    </div>
 
-      <!-- Enter note when screen is large than 500px -->
-      <div v-if="!toggleSearch">
-        <div v-if="!toggleWidht" class="flex justify-center ">
-          <div
-            class="w-[30rem] shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] p-1 rounded-md dark:bg-zinc-900 mb-2">
-            <div v-if="toggleTitle" class="grid grid-cols-2">
-              <button class="place-self-start"
-                @click="addTitleDescription(index), toggleTitle = false, toggleModal = false"><font-awesome-icon
-                  icon="fa-solid fa-arrow-left" /></button>
-              <button v-if="enteredTitle || enteredDescription"
-                @click="toggleTitle = false, enteredTitle = null, enteredDescription = null"
-                class="place-self-end"><font-awesome-icon icon="fa-solid fa-trash" style="color: #707070;" />
-              </button>
-            </div>
-            <input @click="toggleTitle = true" id="title" type="text" v-model="enteredTitle" placeholder="Título"
-              class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
-            <div v-if="toggleTitle">
-              <textarea v-model="enteredDescription" rows="5" autoResize
-                class="m-1 overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-zinc-900"
-                placeholder="Criar uma nota" required style=""></textarea>
-            </div>
+    <!-- Enter note when screen is large than 500px -->
+    <div v-if="!toggleSearch" class="w-full flex flex-col dark:bg-zinc-900 p-[2rem] py-0 pt-2">
+      <div v-if="!toggleWidht" class="flex justify-center ">
+        <div
+          class="w-[30rem] shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] p-1 rounded-md dark:bg-zinc-900 mb-2">
+          <div v-if="toggleTitle" class="grid grid-cols-2">
+            <button class="place-self-start"
+              @click="addTitleDescription(index), toggleTitle = false, toggleModal = false"><font-awesome-icon
+                icon="fa-solid fa-arrow-left" /></button>
+            <button v-if="enteredTitle || enteredDescription"
+              @click="toggleTitle = false, enteredTitle = null, enteredDescription = null"
+              class="place-self-end"><font-awesome-icon icon="fa-solid fa-trash" style="color: #707070;" />
+            </button>
           </div>
-        </div>
-
-        <!-- view saved notes -->
-        <div class="grid xl:grid-cols-7 xl:gap-4 md:grid-cols-5 md:gap-3 ph:grid-cols-2 ph:gap-2 dark:bg-zinc-900 pb-4">
-          <div
-            class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)]  p-2 rounded-md mt-2 content-start break-words font-semibold hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] dark:bg-zinc-900 dark:shadow-none dark:border-2 dark:border-gray-700"
-            v-for="entered in allNote" :key="entered" @click="viewNote(entered.id), toggleTitle = false">{{
-              entered.title
-            }}
-            <p class="font-normal text-left dark:bg-zinc-900">{{ entered.description }}</p>
+          <input @click="toggleTitle = true" id="title" type="text" v-model="enteredTitle" placeholder="Crie um título para sua nota"
+            class="text-lg font-medium break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
+          <div v-if="toggleTitle">
+            <textarea v-model="enteredDescription" rows="5" autoResize
+              class="m-1 overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-zinc-900"
+              placeholder="Criar uma nota" required style=""></textarea>
           </div>
         </div>
       </div>
 
+      <!-- view saved notes -->
+      <div v-if="!toggleModal || toggleModal && !toggleWidht"
+        class="grid xl:grid-cols-7 xl:gap-4 md:grid-cols-5 md:gap-3 ph:grid-cols-2 ph:gap-2 dark:bg-zinc-900 pb-4">
+        <div
+          class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)]  p-2 rounded-md mt-2 content-start break-words font-semibold hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] dark:bg-zinc-900 dark:shadow-none dark:border-2 dark:border-gray-700"
+          v-for="entered in allNote" :key="entered" @click="viewNote(entered.id), toggleTitle = false">{{
+            entered.title
+          }}
+          <p class="font-normal text-left dark:bg-zinc-900">{{ entered.description }}</p>
+        </div>
+      </div>
+
       <!-- button to enter note when width screen is smaller than 500px -->
-      <footer v-if="toggleWidht && !toggleSearch" class="fixed bottom-0 rigth-0 pb-4 place-self-end">
+      <footer v-if="toggleWidht && !toggleSearch && !noNote && !toggleModal" class=" fixed bottom-0 rigth-0 pb-4 place-self-end">
         <button @click="buttonEnterNote = true, toggleModal = true"><font-awesome-icon icon="fa-solid fa-circle-plus"
             size="2xl" />
         </button>
       </footer>
-
     </div>
 
     <!-- Edit note when screen width is smallet than 500px -->
@@ -244,42 +252,18 @@ onMounted(() => {
         placeholder="Nota" required style=""></textarea>
     </div>
 
-
-
+    <!-- View Modal when screen is large than 500 px  -->
     <div v-if="toggleModal && !buttonEnterNote && !toggleWidht" class="relative z-10" aria-labelledby="modal-title"
       role="dialog" aria-modal="true">
-        <!--
-      Background backdrop, show/hide based on modal state.
-
-      Entering: "ease-out duration-300"
-        From: "opacity-0"
-        To: "opacity-100"
-      Leaving: "ease-in duration-200"
-        From: "opacity-100"
-        To: "opacity-0"
-      -->
       <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
       <div></div>
-
       <div class="fixed inset-0 z-10 overflow-y-auto">
         <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-          <!--
-        Modal panel, show/hide based on modal state...
-
-        Entering: "ease-out duration-300"
-          From: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-          To: "opacity-100 translate-y-0 sm:scale-100"
-        Leaving: "ease-in duration-200"
-          From: "opacity-100 translate-y-0 sm:scale-100"
-          To: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-      -->
           <div
             class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
             <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
               <div class="sm:flex sm:items-start">
-
                 <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-
                   <div class="grid grid-cols-2">
                     <button class="place-self-start"
                       @click="addTitleDescription(index), editeNote(), toggleModal = false"><font-awesome-icon
@@ -293,19 +277,25 @@ onMounted(() => {
                   <textarea :value="indexNote[2]" @input="event => indexNote[2] = event.target.value" rows="35"
                     class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-zinc-900 m-1"
                     placeholder="Nota" required style=""></textarea>
-
-
-
                   <div class="mt-2">
-
                   </div>
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </div>
+    </div>
+    </div> 
+
+    <!-- See when there is no note -->
+    <div v-if="noNote && !toggleModal && toggleWidht" class="grid content-center h-screen w-screen">
+      <div class="w-80 h-80 grid content-center justify-self-center justify-items-center">
+        <h1 class="font-bold">Crie sua primeira Nota</h1>      
+        <button @click="buttonEnterNote = true, toggleModal = true, noNote = false"><font-awesome-icon icon="fa-solid fa-circle-plus"
+            size="2xl" class="m-2"/>
+        </button>
+      </div>     
     </div>
 
   </section>
