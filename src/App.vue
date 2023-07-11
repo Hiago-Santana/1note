@@ -289,7 +289,7 @@ onMounted(() => {
 
         <div v-if="descriptionList">
           <div v-for="enteredListDescriptions in enteredListDescription" :key=enteredListDescriptions
-            class="grid grid-cols-12"><input type="checkbox" :checked="enteredListDescription[0].checkBox"
+            class="grid grid-cols-12"><input type="checkbox" :checked="enteredListDescriptions[0]"
               class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center "> <input type="text"
               :value=enteredListDescriptions class="col-start-2 col-span-10 "> <button><font-awesome-icon
                 icon="fa-solid fa-x" class="col-end-7 col-span-1 " /></button>
