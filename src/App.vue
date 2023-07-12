@@ -23,7 +23,9 @@ const noNote = ref(false);
 const descriptionList = ref(false);
 const enteredListDescription = ref([]);
 const textlist = ref();
-const checkedBox = ref(false)
+const checkedBox = ref(false);
+const newEnteredDescription = ref();
+const checkedBoxItem = ref();
 
 async function searchNote() {
   if (valueSearchCopy.value != valueSearch.value) {
@@ -157,9 +159,18 @@ const deleteDescriptionItem = (idx) => {
 }
 
 const editeDescriptionItem = (idx) => {
-  const checkBox = checkedBox.value;
-  const description = enteredDescription.value
-  enteredListDescription.value.splice(idx,1,description)
+  const checkBox = checkedBoxItem.value;
+  if(newEnteredDescription.value == ""){
+    const description = enteredListDescription.value[1].idx
+    
+  }else{const description = newEnteredDescription.value
+    console.log("description",description)}
+  const description = newEnteredDescription.value
+  enteredListDescription.value.splice(idx,1,[checkBox,description])
+  //enteredListDescription.value.splice(idx,1,checkBox)
+  console.log("checkedBoxItem",checkedBoxItem)
+  
+  console.log("idx",idx);
   console.log("enteredListDescription.value",enteredListDescription.value)
 }
 
@@ -302,14 +313,14 @@ onMounted(() => {
           <div v-for="(enteredListDescriptions, index) in enteredListDescription" :key=enteredListDescriptions
             class="grid grid-cols-12">
 
-            <input type="checkbox" :checked="enteredListDescriptions[0]" class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center "> 
-            <input type="text" :value=enteredListDescriptions v-on:keyup.enter="addDescriptionList()" class="col-start-2 col-span-10 "> 
+            <input type="checkbox" :checked="enteredListDescriptions[0]" id="checkedBoxItem" v-model="checkedBoxItem" @change="editeDescriptionItem(index)" class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center "> 
+            <input type="text" :value=enteredListDescriptions v-on:keyup.enter="editeDescriptionItem(index)" @input="event => newEnteredDescription = event.target.value" class="col-start-2 col-span-10 "> 
             <button @click="deleteDescriptionItem(index)"><font-awesome-icon icon="fa-solid fa-x" class="col-end-7 col-span-1 " /></button>
           </div>
 
           <div class="grid grid-cols-12">
             <input type="checkbox" id="checkbox" v-model="checkedBox" class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center">              
-            <input type="text" v-model="enteredDescription" v-on:keyup.enter="editeDescriptionItem(index)" ref="textlist" class="col-start-2 col-span-10">
+            <input type="text" v-model="enteredDescription" v-on:keyup.enter="addDescriptionList()" ref="textlist" class="col-start-2 col-span-10">
             <button><font-awesome-icon icon="fa-solid fa-x" class="col-end-7 col-span-1" /></button>
           </div>
         </div>
