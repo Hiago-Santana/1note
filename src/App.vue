@@ -162,7 +162,7 @@ const deleteDescriptionItem = (idx) => {
 
 const editeDescriptionItem = (idx) => {
 
-  const checkBox = checkedBoxItem.value;
+  const checkBox = !enteredListDescription.value[idx].checkBox
   console.log("checkBox", checkBox)
   
   if (newEnteredDescription.value === null) {
@@ -172,6 +172,7 @@ const editeDescriptionItem = (idx) => {
 
   } else {
     descriptionTeste.value = newEnteredDescription.value
+    const checkBox = enteredListDescription.value[idx].checkBox
     console.log("newEnteredDescription", newEnteredDescription.value)
   }
 
@@ -309,7 +310,7 @@ onMounted(() => {
       <!-- Add note when screen width is smallet than 500px -->
       <div v-if="buttonEnterNote" class="p-[2rem]">
         <div class="grid grid-cols-3">
-          <button @click="addTitleDescription(index), toggleModal = false" class="place-self-start"><font-awesome-icon
+          <button @click="addTitleDescription(index), toggleModal = false, descriptionList = false" class="place-self-start"><font-awesome-icon
               icon="fa-solid fa-arrow-left" /></button>
           <button v-if="!descriptionList" @click="descriptionList = true" class="place-self-center"><font-awesome-icon
               icon="fa-solid fa-list-check" /></button>
@@ -326,8 +327,8 @@ onMounted(() => {
           <div v-for="(enteredListDescriptions, index) in enteredListDescription" :key=enteredListDescriptions
             class="grid grid-cols-12">
 
-            <input type="checkbox" :checked=enteredListDescriptions.checkBox id="checkedBoxItem"
-              v-model="checkedBoxItem" @change="editeDescriptionItem(index)"
+            <input type="checkbox" :checked=enteredListDescriptions.checkBox id="checkedBoxItem"              
+              @change="editeDescriptionItem(index)"
               class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center ">
             
               <input type="text" :value=enteredListDescriptions.description v-on:keyup.enter="editeDescriptionItem(index)"
