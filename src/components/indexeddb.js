@@ -22,11 +22,18 @@ export function openDataBase() {
 }
 
 export async function addNote(title, description) {
-  console.log("descriptionLength",description.length)
-  
+
+  const resultArray = Array.isArray(description)
+  console.log("resultArray",resultArray)
+  console.log("testeArray",description[0].checkBox)  
   const db = await openDataBase();
+
+  if(resultArray){
+    
+    db.add("note", {title: title, {checkBox: description[0].checkBox, description: description[0].description}});
+  }
   
-  db.add("note", {title, description});  
+    
   const store = db.transaction('note').store;
   const cursor = await store.openCursor();
 }
