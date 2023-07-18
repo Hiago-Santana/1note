@@ -22,7 +22,10 @@ export function openDataBase() {
 }
 
 export async function addNote(title, description) {
+  console.log("descriptionLength",description.length)
+  
   const db = await openDataBase();
+  
   db.add("note", {title, description});  
   const store = db.transaction('note').store;
   const cursor = await store.openCursor();

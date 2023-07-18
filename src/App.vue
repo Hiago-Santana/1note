@@ -26,7 +26,8 @@ const textlist = ref();
 const checkedBox = ref(false);
 const newEnteredDescription = ref(null);
 const checkedBoxItem = ref();
-const descriptionTeste = ref("");
+const descriptionEdite = ref("");
+const checkBoxValue = ref("");
 
 async function searchNote() {
   if (valueSearchCopy.value != valueSearch.value) {
@@ -103,9 +104,19 @@ async function reloadNote() {
 async function addTitleDescription(index) {
   //Add title and description to database
   const title = enteredTitle.value;
-  const description = enteredDescription.value;
-  if (title != "" || description != "") {
-    await addNote(title, description);
+  const description = {'value': null};
+  console.log("description0",description.value)
+  
+  if(descriptionList.value == true){
+    description.value = enteredListDescription.value
+    console.log("description1",description.value)
+  }else{
+     description.value = enteredDescription.value;
+  }
+ 
+  console.log("description2",description.value)
+  if (title != "" || description.value != "") {
+    await addNote(title, description.value);
     const note = await readAllNote();
     allNote.value = note;
     enteredTitle.value = "";
@@ -145,14 +156,11 @@ const editeNote = () => {
 }
 
 const addDescriptionList = () => {
+  //Add description list
   const checkBox = checkedBox.value;
   const description = enteredDescription.value
   enteredListDescription.value.push({ checkBox: checkBox, description: description });
-  console.log("enteredListDescription", enteredListDescription.value)
-  //enteredListDescription.value.push("");
   enteredDescription.value = "";
-  //console.log("enteredListDescription", enteredListDescription.value[0][0])
-  //this.$refs.textlist.focus()
   textlist.value.focus()
 }
 
@@ -161,31 +169,18 @@ const deleteDescriptionItem = (idx) => {
 }
 
 const editeDescriptionItem = (idx) => {
+  //Edit description list
 
-  const checkBox = !enteredListDescription.value[idx].checkBox
-  console.log("checkBox", checkBox)
-  
   if (newEnteredDescription.value === null) {
-    descriptionTeste.value = enteredListDescription.value[idx].description
-
-
-
+    descriptionEdite.value = enteredListDescription.value[idx].description
+    checkBoxValue.value = !enteredListDescription.value[idx].checkBox
   } else {
-    descriptionTeste.value = newEnteredDescription.value
-    const checkBox = enteredListDescription.value[idx].checkBox
-    console.log("newEnteredDescription", newEnteredDescription.value)
+    descriptionEdite.value = newEnteredDescription.value
+    checkBoxValue.value = enteredListDescription.value[idx].checkBox
   }
 
-  console.log("descriptionTeste", descriptionTeste)
-
-  console.log("enteredListDescription.value", enteredListDescription.value)
-  enteredListDescription.value.splice(idx, 1, { checkBox: checkBox, description: descriptionTeste.value })
+  enteredListDescription.value.splice(idx, 1, { checkBox: checkBoxValue.value, description: descriptionEdite.value })
   newEnteredDescription.value = null;
-  //enteredListDescription.value.splice(idx,1,checkBox)
-  console.log("checkedBoxItem", checkedBoxItem)
-
-  console.log("idx", idx);
-  console.log("enteredListDescription.value", enteredListDescription.value)
 }
 
 //load the function when page is opened
@@ -320,7 +315,7 @@ onMounted(() => {
           </button>
         </div>
 
-        <input type="text" v-model="enteredTitle" @click="addDescriptionList()" placeholder="Título"
+        <input type="text" v-model="enteredTitle"  placeholder="Título"
           class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
 
         <div v-if="descriptionList">
