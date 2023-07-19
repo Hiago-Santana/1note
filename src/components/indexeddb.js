@@ -30,7 +30,14 @@ export async function addNote(title, description) {
 
   if(resultArray){
     
-    db.add("note", {title: title, {checkBox: description[0].checkBox, description: description[0].description}});
+    // db.add("note", {title: title, description: description[0].description});
+    db.add("note", {title: title, description: {list: description[0].description, checkBox: description[0].checkBox}});
+    const allNote = await db.getAll("note");
+    const teste = allNote.slice(-1)[0]
+    console.log("teste",teste.id)
+
+    const size = description.length
+    console.log("size",size)
   }
   
     
