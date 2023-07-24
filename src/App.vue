@@ -76,7 +76,9 @@ const viewNote = (id) => {
       indexNote.value = "";
       const title = allNote.value[i].title;
       const description = allNote.value[i].description;
+      //const jsonTeste = isJson(description)
       indexNote.value = [id, title, description];
+      // console.log("description_ViewNote", description[0].description)
       indexNoteCopy.value = [id, title, description];
       toggleModal.value = true;
     }
@@ -90,8 +92,16 @@ async function reloadNote() {
 
   for (let i = 0; i < size; i++) {
     const title = allNote.value[i].title;
-    const description = allNote.value[i].description;
+    const description = { 'value': null }
+    description.value = allNote.value[i].description;
+    const jsonTeste = isJson(description.value)
     const id = allNote.value[i].id;
+
+    if (jsonTeste) {
+      description.value = JSON.parse(description.value)
+      allNote.value[i].description = description.value
+      // console.log("checboxArrayTeste", allNote.value[i].description[0].checkBox)
+    }
     index.add(id, title);
     index.append(id, description)
   }
@@ -101,20 +111,33 @@ async function reloadNote() {
   }
 }
 
+function isJson(str) {
+  //Test if it's a json
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
+}
+
+
+
 async function addTitleDescription(index) {
   //Add title and description to database
   const title = enteredTitle.value;
-  const description = {'value': null};
-  console.log("description0",description.value)
-  
-  if(descriptionList.value == true){
-    description.value = enteredListDescription.value
-    console.log("description1",description.value)
-  }else{
-     description.value = enteredDescription.value;
+  const description = { 'value': null };
+
+  if (descriptionList.value == true) {
+    if (enteredDescription.value != "") {
+      enteredListDescription.value.push({ checkBox: checkedBox.value, description: enteredDescription.value });
+    }
+    description.value = JSON.stringify(enteredListDescription.value)
+    //const jsonData = JSON.stringify(enteredListDescription.value)
+  } else {
+    description.value = enteredDescription.value;
   }
- 
-  console.log("description2",description.value)
+
   if (title != "" || description.value != "") {
     await addNote(title, description.value);
     const note = await readAllNote();
@@ -143,16 +166,27 @@ const removeNote = () => {
   toggleModal.value = false;
 }
 
-const editeNote = () => {
+const editeNote = (trash) => {
   //Edite note
+  toggleModal.value = false;
+  if(trash!=null){
+    console.log("trash","trash")
+    indexNote.value[2].splice(trash, 1)
+    toggleModal.value = true;
+  }
+  
   const id = indexNote.value[0];
   const title = indexNote.value[1];
-  const description = indexNote.value[2];
-  setNote(id, title, description);
-  reloadNote();
-  searchNote();
-  toggleModal.value = false;
+  const description = {'value': indexNote.value[2]}; 
+  const jsonTeste = {'value': isJson(description.value)};
+  console.log("editeNote CheckBox", indexNote.value[2])
 
+  if(!jsonTeste.value){
+    description.value = JSON.stringify(description.value)
+  }
+  setNote(id, title, description.value);
+  reloadNote();
+  searchNote();  
 }
 
 const addDescriptionList = () => {
@@ -252,10 +286,19 @@ onMounted(() => {
           class="grid xl:grid-cols-7 xl:gap-4 md:grid-cols-5 md:gap-3 ph:grid-cols-2 ph:gap-2 dark:bg-zinc-900 pb-4">
           <div
             class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)]  p-2 rounded-md mt-2 content-start break-words font-semibold hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] dark:bg-zinc-900 dark:shadow-none dark:border-2 dark:border-gray-700"
-            v-for="entered in allNote" :key="entered" @click="viewNote(entered.id), toggleTitle = false">{{
-              entered.title
-            }}
-            <p class="font-normal text-left dark:bg-zinc-900">{{ entered.description }}</p>
+            v-for="entered in allNote" :key="entered" @click="viewNote(entered.id), toggleTitle = false">
+            <div v-if="Array.isArray(entered.description)">
+              {{ entered.title }}
+              <div v-for="entereds in entered.description" :key="entereds" class="grid grid-cols-12">
+                <input type="checkbox" :checked=entereds.checkBox
+                  class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center mx-2">
+                <input type="text" :value=entereds.description class="col-start-2 col-span-11 ml-1 font-normal">
+              </div>
+            </div>
+            <div v-else>
+              {{ entered.title }}
+              <p class="font-normal text-left dark:bg-zinc-900">{{ entered.description }}</p>
+            </div>
           </div>
         </div>
 
@@ -272,17 +315,61 @@ onMounted(() => {
       <div v-if="toggleModal && !buttonEnterNote && toggleWidht" class="p-[2rem]">
         <div class="grid grid-cols-2">
           <button class="place-self-start"
-            @click="addTitleDescription(index), editeNote(), toggleModal = false"><font-awesome-icon
+            @click="editeNote(), toggleModal = false"><font-awesome-icon
               icon="fa-solid fa-arrow-left" /></button>
           <button @click="toggleModal = false, removeNote()" class="place-self-end"><font-awesome-icon
               icon="fa-solid fa-trash" style="color: #707070;" />
           </button>
         </div>
-        <input :value="indexNote[1]" @input="event => indexNote[1] = event.target.value" placeholder="Título"
-          class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
-        <textarea :value="indexNote[2]" @input="event => indexNote[2] = event.target.value" rows="35"
-          class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-zinc-900 m-1"
-          placeholder="Nota" required style=""></textarea>
+
+        <div v-if="Array.isArray(indexNote[2])">
+
+
+
+          <input :value="indexNote[1]" @input="event => indexNote[1] = event.target.value" placeholder="Título"
+            class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
+
+          <div v-for="(entered, index) in indexNote[2]" :key="entered" class="grid grid-cols-12">
+
+            <input type="checkbox" :checked=entered.checkBox
+            @change="indexNote[2][index].checkBox = !indexNote[2][index].checkBox"              
+              class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center ">
+
+            <input type="text" :value=entered.description v-on:keyup.enter="indexNote[2][0].description"
+              @input="event => indexNote[2][index].description = event.target.value" class="col-start-2 col-span-10 ">
+
+            <button @click="editeNote(trash=index)"><font-awesome-icon icon="fa-solid fa-x"
+                class="col-end-7 col-span-1 " /></button>
+
+
+
+          </div>
+          
+
+
+          <div class="grid grid-cols-12">
+            <button @click="editeNote(trash=index)"><font-awesome-icon icon="fa-solid fa-plus" class="col-end-7 col-span-1 "/></button>
+
+            <input type="text" v-on:keyup.enter="indexNote[2][0].description" placeholder="Item da lista"
+              @input="event => indexNote[2].description = event.target.value" class="col-start-2 col-span-10 ">
+
+          </div>
+
+
+
+
+
+        </div>
+        <div v-else>
+
+          <input :value="indexNote[1]" @input="event => indexNote[1] = event.target.value" placeholder="Título"
+            class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
+          <textarea :value="indexNote[2]" @input="event => indexNote[2] = event.target.value" rows="35"
+            class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-zinc-900 m-1"
+            placeholder="Nota" required style=""></textarea>
+        </div>
+
+
       </div>
 
       <!-- Add note when screen width is smallet than 500px
@@ -305,8 +392,8 @@ onMounted(() => {
       <!-- Add note when screen width is smallet than 500px -->
       <div v-if="buttonEnterNote" class="p-[2rem]">
         <div class="grid grid-cols-3">
-          <button @click="addTitleDescription(index), toggleModal = false, descriptionList = false" class="place-self-start"><font-awesome-icon
-              icon="fa-solid fa-arrow-left" /></button>
+          <button @click="addTitleDescription(index), toggleModal = false, descriptionList = false"
+            class="place-self-start"><font-awesome-icon icon="fa-solid fa-arrow-left" /></button>
           <button v-if="!descriptionList" @click="descriptionList = true" class="place-self-center"><font-awesome-icon
               icon="fa-solid fa-list-check" /></button>
           <button v-if="enteredTitle || enteredDescription"
@@ -315,21 +402,21 @@ onMounted(() => {
           </button>
         </div>
 
-        <input type="text" v-model="enteredTitle"  placeholder="Título"
+        <input type="text" v-model="enteredTitle" placeholder="Título"
           class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
 
         <div v-if="descriptionList">
           <div v-for="(enteredListDescriptions, index) in enteredListDescription" :key=enteredListDescriptions
             class="grid grid-cols-12">
 
-            <input type="checkbox" :checked=enteredListDescriptions.checkBox id="checkedBoxItem"              
+            <input type="checkbox" :checked=enteredListDescriptions.checkBox id="checkedBoxItem"
               @change="editeDescriptionItem(index)"
               class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center ">
-            
-              <input type="text" :value=enteredListDescriptions.description v-on:keyup.enter="editeDescriptionItem(index)"
+
+            <input type="text" :value=enteredListDescriptions.description v-on:keyup.enter="editeDescriptionItem(index)"
               @input="event => newEnteredDescription = event.target.value" class="col-start-2 col-span-10 ">
-            
-              <button @click="deleteDescriptionItem(index)"><font-awesome-icon icon="fa-solid fa-x"
+
+            <button @click="deleteDescriptionItem(index)"><font-awesome-icon icon="fa-solid fa-x"
                 class="col-end-7 col-span-1 " /></button>
           </div>
 
@@ -394,6 +481,7 @@ onMounted(() => {
       </div>
     </div>
 
-</section></template>
+  </section>
+</template>
 
 <style scoped></style>

@@ -18,12 +18,14 @@ import { faCirclePlus } from '@fortawesome/free-solid-svg-icons'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { faListCheck } from '@fortawesome/free-solid-svg-icons'
 import { faX } from '@fortawesome/free-solid-svg-icons'
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
 
 //<font-awesome-icon icon="fa-solid fa-x" /> />
+//<font-awesome-icon icon="fa-solid fa-plus" />
 
 
 /* add icons to the library */
-library.add(faUserSecret, faXmark, faTrash, faCirclePlus, faArrowLeft, faListCheck, faX)
+library.add(faUserSecret, faXmark, faTrash, faCirclePlus, faArrowLeft, faListCheck, faX, faPlus)
 
 
 createApp(App)
