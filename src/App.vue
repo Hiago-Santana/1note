@@ -28,6 +28,8 @@ const newEnteredDescription = ref(null);
 const checkedBoxItem = ref();
 const descriptionEdite = ref("");
 const checkBoxValue = ref("");
+const addChecKBox = ref(false);
+const trashButton = ref(false)
 
 async function searchNote() {
   if (valueSearchCopy.value != valueSearch.value) {
@@ -169,24 +171,35 @@ const removeNote = () => {
 const editeNote = (trash) => {
   //Edite note
   toggleModal.value = false;
-  if(trash!=null){
-    console.log("trash","trash")
+  if (trash != null) {
+    console.log("trash", "trash")
     indexNote.value[2].splice(trash, 1)
     toggleModal.value = true;
   }
-  
+
+
+
+  if (enteredDescription.value != "") {
+    console.log("enteredDescription.value", enteredDescription.value)
+    const checkBox = checkedBox.value;
+    indexNote.value[2].push({ checkBox: checkBox, description: enteredDescription.value });
+    enteredDescription.value = "";
+    toggleModal.value = true;
+  }
+
   const id = indexNote.value[0];
   const title = indexNote.value[1];
-  const description = {'value': indexNote.value[2]}; 
-  const jsonTeste = {'value': isJson(description.value)};
+  const description = { 'value': indexNote.value[2] };
+  const jsonTeste = { 'value': isJson(description.value) };
   console.log("editeNote CheckBox", indexNote.value[2])
 
-  if(!jsonTeste.value){
+  if (!jsonTeste.value) {
     description.value = JSON.stringify(description.value)
   }
+  checkedBox.value = false;
   setNote(id, title, description.value);
   reloadNote();
-  searchNote();  
+  searchNote();
 }
 
 const addDescriptionList = () => {
@@ -195,6 +208,7 @@ const addDescriptionList = () => {
   const description = enteredDescription.value
   enteredListDescription.value.push({ checkBox: checkBox, description: description });
   enteredDescription.value = "";
+  checkedBox.value = false;
   textlist.value.focus()
 }
 
@@ -314,8 +328,7 @@ onMounted(() => {
       <!-- Edit note when screen width is smallet than 500px -->
       <div v-if="toggleModal && !buttonEnterNote && toggleWidht" class="p-[2rem]">
         <div class="grid grid-cols-2">
-          <button class="place-self-start"
-            @click="editeNote(), toggleModal = false"><font-awesome-icon
+          <button class="place-self-start" @click="editeNote(), toggleModal = false"><font-awesome-icon
               icon="fa-solid fa-arrow-left" /></button>
           <button @click="toggleModal = false, removeNote()" class="place-self-end"><font-awesome-icon
               icon="fa-solid fa-trash" style="color: #707070;" />
@@ -332,27 +345,36 @@ onMounted(() => {
           <div v-for="(entered, index) in indexNote[2]" :key="entered" class="grid grid-cols-12">
 
             <input type="checkbox" :checked=entered.checkBox
-            @change="indexNote[2][index].checkBox = !indexNote[2][index].checkBox"              
+              @change="indexNote[2][index].checkBox = !indexNote[2][index].checkBox"
               class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center ">
 
             <input type="text" :value=entered.description v-on:keyup.enter="indexNote[2][0].description"
-              @input="event => indexNote[2][index].description = event.target.value" class="col-start-2 col-span-10 ">
-
-            <button @click="editeNote(trash=index)"><font-awesome-icon icon="fa-solid fa-x"
+              @input="event => indexNote[2][index].description = event.target.value" @focus="trashButton = true" @blur="trashButton = false" class="col-start-2 col-span-10 ">
+            
+            
+            <button v-if="trashButton" @click="editeNote(trash = index)"><font-awesome-icon icon="fa-solid fa-x"
                 class="col-end-7 col-span-1 " /></button>
 
 
 
           </div>
-          
+
 
 
           <div class="grid grid-cols-12">
-            <button @click="editeNote(trash=index)"><font-awesome-icon icon="fa-solid fa-plus" class="col-end-7 col-span-1 "/></button>
 
-            <input type="text" v-on:keyup.enter="indexNote[2][0].description" placeholder="Item da lista"
-              @input="event => indexNote[2].description = event.target.value" class="col-start-2 col-span-10 ">
+            <div v-if="addChecKBox" class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center ">
+              <input type="checkbox" id="checkbox" v-model="checkedBox"
+              class="object-contain h-4 w-4 place-self-center ">
+            </div>
+            <div v-else>
+              <button @click="addChecKBox = true"><font-awesome-icon icon="fa-solid fa-plus"
+                  class="object-contain h-4 w-4 place-self-center " /></button>
+            </div>
 
+
+            <input type="text" v-on:keyup.enter="editeNote()" placeholder="Item da lista" v-model="enteredDescription"
+              @focus="addChecKBox = true" class="col-start-2 col-span-10 ">
           </div>
 
 
