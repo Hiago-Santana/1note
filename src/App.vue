@@ -77,14 +77,31 @@ const viewNote = (id) => {
     if (idArray === id) {
       indexNote.value = "";
       const title = allNote.value[i].title;
-      const description = allNote.value[i].description;
+      const descriptionValue = { 'value': allNote.value[i].description };
+      console.log("descriptionValue", descriptionValue.value)
+      const testArray = Array.isArray(descriptionValue.value)
+
+      if (testArray) {
+        const sizeDescription = descriptionValue.value.length
+        const descriptionList = { 'value': [] };
+        for (let i = 0; i < sizeDescription; i++) {
+
+          console.log("descriptionValue.value[i].description", descriptionValue.value[i].description)
+          descriptionList.value.push({ checkBox: descriptionValue.value[i].checkBox, description: descriptionValue.value[i].description, trashButton: false })
+        }
+        console.log("descripionList", descriptionList.value)
+        descriptionValue.value = descriptionList.value
+      }
+
+
       //const jsonTeste = isJson(description)
-      indexNote.value = [id, title, description];
+      indexNote.value = [id, title, descriptionValue.value];
       // console.log("description_ViewNote", description[0].description)
-      indexNoteCopy.value = [id, title, description];
+      indexNoteCopy.value = [id, title, descriptionValue];
       toggleModal.value = true;
     }
   }
+  console.log("indexNote22", indexNote.value)
 }
 
 async function reloadNote() {
@@ -171,13 +188,12 @@ const removeNote = () => {
 const editeNote = (trash) => {
   //Edite note
   toggleModal.value = false;
+  console.log("trash",trash)
   if (trash != null) {
-    console.log("trash", "trash")
+    console.log("trash", trash)
     indexNote.value[2].splice(trash, 1)
     toggleModal.value = true;
   }
-
-
 
   if (enteredDescription.value != "") {
     console.log("enteredDescription.value", enteredDescription.value)
@@ -348,24 +364,33 @@ onMounted(() => {
               @change="indexNote[2][index].checkBox = !indexNote[2][index].checkBox"
               class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center ">
 
+            
             <input type="text" :value=entered.description v-on:keyup.enter="indexNote[2][0].description"
-              @input="event => indexNote[2][index].description = event.target.value" @focus="trashButton = true" @blur="trashButton = false" class="col-start-2 col-span-10 ">
-            
-            
-            <button v-if="trashButton" @click="editeNote(trash = index)"><font-awesome-icon icon="fa-solid fa-x"
-                class="col-end-7 col-span-1 " /></button>
+              @input="event => indexNote[2][index].description = event.target.value"
+              @focus="indexNote[2][index].trashButton = true" @blur="indexNote[2][index].trashButton = false" class="col-start-2 col-span-10">
 
 
+            <button v-if="entered.trashButton"
+              @click="editeNote(trash = index), indexNote[2][index].trashButton = true"><font-awesome-icon
+                icon="fa-solid fa-x" class="col-end-7 col-span-1" /></button>
 
           </div>
+
+
+          <!-- @focus="entered[index].trashButton = true" @blur="trashButton = false" -->
+          <!-- <p>{{ entered }}</p> -->
+          <!-- <p>{{ indexNote[2][index].trashButton }}</p> -->
+          <!-- v-if="indexNote[2][index].trashButton" -->
+
+
+
 
 
 
           <div class="grid grid-cols-12">
 
             <div v-if="addChecKBox" class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center ">
-              <input type="checkbox" id="checkbox" v-model="checkedBox"
-              class="object-contain h-4 w-4 place-self-center ">
+              <input type="checkbox" id="checkbox" v-model="checkedBox" class="object-contain h-4 w-4 place-self-center ">
             </div>
             <div v-else>
               <button @click="addChecKBox = true"><font-awesome-icon icon="fa-solid fa-plus"
