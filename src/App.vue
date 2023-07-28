@@ -188,7 +188,7 @@ const removeNote = () => {
 const editeNote = (trash) => {
   //Edite note
   toggleModal.value = false;
-  console.log("trash",trash)
+  console.log("trash", trash)
   if (trash != null) {
     console.log("trash", trash)
     indexNote.value[2].splice(trash, 1)
@@ -353,42 +353,21 @@ onMounted(() => {
 
         <div v-if="Array.isArray(indexNote[2])">
 
-
-
           <input :value="indexNote[1]" @input="event => indexNote[1] = event.target.value" placeholder="Título"
             class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
 
-          <div v-for="(entered, index) in indexNote[2]" :key="entered" class="grid grid-cols-12">
-
+          <div v-for="(entered, index) in indexNote[2]" :key="entered" class="grid grid-cols-12 group/item">
             <input type="checkbox" :checked=entered.checkBox
               @change="indexNote[2][index].checkBox = !indexNote[2][index].checkBox"
               class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center ">
-
-            
             <input type="text" :value=entered.description v-on:keyup.enter="indexNote[2][0].description"
-              @input="event => indexNote[2][index].description = event.target.value"
-              @focus="indexNote[2][index].trashButton = true" @blur="indexNote[2][index].trashButton = false" class="col-start-2 col-span-10">
-
-
-            <button v-if="entered.trashButton"
-              @click="editeNote(trash = index), indexNote[2][index].trashButton = true"><font-awesome-icon
+              @input="event => indexNote[2][index].description = event.target.value" class="col-start-2 col-span-10">
+            <button @click="editeNote(trash = index)" class="invisible group-hover/item:visible "><font-awesome-icon
                 icon="fa-solid fa-x" class="col-end-7 col-span-1" /></button>
-
           </div>
 
 
-          <!-- @focus="entered[index].trashButton = true" @blur="trashButton = false" -->
-          <!-- <p>{{ entered }}</p> -->
-          <!-- <p>{{ indexNote[2][index].trashButton }}</p> -->
-          <!-- v-if="indexNote[2][index].trashButton" -->
-
-
-
-
-
-
           <div class="grid grid-cols-12">
-
             <div v-if="addChecKBox" class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center ">
               <input type="checkbox" id="checkbox" v-model="checkedBox" class="object-contain h-4 w-4 place-self-center ">
             </div>
@@ -396,19 +375,11 @@ onMounted(() => {
               <button @click="addChecKBox = true"><font-awesome-icon icon="fa-solid fa-plus"
                   class="object-contain h-4 w-4 place-self-center " /></button>
             </div>
-
-
             <input type="text" v-on:keyup.enter="editeNote()" placeholder="Item da lista" v-model="enteredDescription"
               @focus="addChecKBox = true" class="col-start-2 col-span-10 ">
           </div>
-
-
-
-
-
         </div>
         <div v-else>
-
           <input :value="indexNote[1]" @input="event => indexNote[1] = event.target.value" placeholder="Título"
             class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
           <textarea :value="indexNote[2]" @input="event => indexNote[2] = event.target.value" rows="35"
