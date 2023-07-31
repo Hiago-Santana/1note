@@ -4,7 +4,7 @@ import { onMounted, ref } from 'vue'
 import { addNote, readAllNote, deleteNote, setNote } from './components/indexeddb'
 import Index from 'flexsearch';
 
-const enteredTitle = ref('');
+const enteredTitle = ref(null);
 const enteredDescription = ref(null);
 const indexNote = ref(null);
 const toggleModal = ref(false);
@@ -142,7 +142,7 @@ async function addTitleDescription(index) {
 
   if (descriptionList.value == true) {
     if (enteredDescription.value != null && enteredDescription.value != "") {
-      console.log("enteredListDescription.value",enteredListDescription.value)
+      console.log("enteredListDescription.value", enteredListDescription.value)
       enteredListDescription.value.push({ checkBox: checkedBox.value, description: enteredDescription.value });
     }
     description.value = JSON.stringify(enteredListDescription.value)
@@ -150,11 +150,11 @@ async function addTitleDescription(index) {
     description.value = enteredDescription.value;
   }
 
-  if (title != "" || description.value != "") {
+  if (title != null || description.value != null) {
     await addNote(title, description.value);
     const note = await readAllNote();
     allNote.value = note;
-    enteredTitle.value = "";
+    enteredTitle.value = null;
     enteredDescription.value = null;
     toggleTitle.value = false;
     noNote.value = false;
@@ -166,7 +166,7 @@ async function addTitleDescription(index) {
   }
   buttonEnterNote.value = false;
   enteredListDescription.value = []
-  
+
 }
 
 const removeNote = () => {
@@ -219,11 +219,11 @@ const editeNote = (trash) => {
 const addDescriptionList = () => {
   //Add description list
   const checkBox = checkedBox.value;
-  const description = {'value': enteredDescription.value}
-  if(description.value != null && description.value != "") {
+  const description = { 'value': enteredDescription.value }
+  if (description.value != null && description.value != "") {
     enteredListDescription.value.push({ checkBox: checkBox, description: description.value });
   }
-  
+
   enteredDescription.value = null;
   checkedBox.value = false;
   //textlist.value.focus()
@@ -294,8 +294,10 @@ onMounted(() => {
             class="w-[30rem] shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] p-1 rounded-md dark:bg-zinc-900 mb-2">
             <div v-if="toggleTitle" class="grid grid-cols-2">
               <button class="place-self-start"
-                @click="addTitleDescription(index), toggleTitle = false, toggleModal = false"><font-awesome-icon
+                @click="addTitleDescription(index), toggleTitle = false, toggleModal = false, descriptionList = false"><font-awesome-icon
                   icon="fa-solid fa-arrow-left" /></button>
+              <button v-if="!descriptionList" @click="descriptionList = true" class="place-self-center"><font-awesome-icon
+                  icon="fa-solid fa-list-check" /></button>
               <button v-if="enteredTitle || enteredDescription"
                 @click="toggleTitle = false, enteredTitle = null, enteredDescription = null"
                 class="place-self-end"><font-awesome-icon icon="fa-solid fa-trash" style="color: #707070;" />
@@ -304,11 +306,43 @@ onMounted(() => {
             <input @click="toggleTitle = true" id="title" type="text" v-model="enteredTitle"
               placeholder="Crie um título para sua nota"
               class="text-lg font-medium break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
-            <div v-if="toggleTitle">
+
+              <div v-if="descriptionList && toggleTitle">
+          <div v-for="(enteredListDescriptions, index) in enteredListDescription" :key=enteredListDescriptions
+            class="grid grid-cols-12 group/item">
+            <input type="checkbox" :checked=enteredListDescriptions.checkBox id="checkedBoxItem"
+              @change="editeDescriptionItem(index)"
+              class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center ">
+            <input type="text" :value=enteredListDescriptions.description v-on:keyup.enter="editeDescriptionItem(index)"
+              @input="event => newEnteredDescription = event.target.value"
+              class="col-start-2 col-span-10 focus:outline-none dark:bg-zinc-900">
+            <button @click="deleteDescriptionItem(index)"><font-awesome-icon icon="fa-solid fa-x"
+                class="col-end-7 col-span-1 invisible group-hover/item:visible" /></button>
+          </div>
+          <div class="grid grid-cols-12">
+            <input type="checkbox" id="checkbox" v-model="checkedBox"
+              class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center">
+            <input type="text" v-model="enteredDescription" @blur="addDescriptionList()"
+              v-on:keyup.enter="addDescriptionList()" ref="textlist"
+              class="col-start-2 col-span-10 focus:outline-none dark:bg-zinc-900">
+            <!-- <button><font-awesome-icon icon="fa-solid fa-x" class="col-end-7 col-span-1" /></button> -->
+          </div>
+          <div v-if="enteredDescription != null" class="col-start-1 col-span-12">
+            <button @click="addChecKBox = true"><font-awesome-icon icon="fa-solid fa-plus"
+                class="object-contain h-4 w-4 place-self-center mx-1" /></button>
+            <input type="text" v-on:keyup.enter="addDescriptionList()" placeholder="Item da lista"
+              @focus="addChecKBox = true" class="focus:outline-none dark:bg-zinc-900">
+          </div>
+        </div>
+        <textarea v-if="toggleTitle && !descriptionList" v-model="enteredDescription" rows="5"
+          class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 m-2 bg-white border-0 dark:bg-zinc-900"
+          placeholder="Nota" required style=""></textarea>
+
+            <!-- <div v-if="toggleTitle">
               <textarea v-model="enteredDescription" rows="5" autoResize
                 class="m-1 overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-zinc-900"
                 placeholder="Criar uma nota" required style=""></textarea>
-            </div>
+            </div> -->
           </div>
         </div>
 
@@ -323,7 +357,8 @@ onMounted(() => {
               <div v-for="entereds in entered.description" :key="entereds" class="grid grid-cols-12">
                 <input type="checkbox" :checked=entereds.checkBox
                   class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center mx-2 ">
-                <input type="text" :value=entereds.description class="col-start-2 col-span-11 ml-1 font-normal dark:bg-zinc-900">
+                <input type="text" :value=entereds.description
+                  class="col-start-2 col-span-11 ml-1 font-normal dark:bg-zinc-900">
               </div>
             </div>
             <div v-else>
@@ -361,7 +396,7 @@ onMounted(() => {
               @change="indexNote.description[index].checkBox = !indexNote.description[index].checkBox"
               class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center ">
             <input type="text" :value=entered.description v-on:keyup.enter="indexNote.description[0].description"
-              @input="event => indexNote.description[index].description = event.target.value" 
+              @input="event => indexNote.description[index].description = event.target.value"
               class="col-start-2 col-span-10 focus:outline-none dark:bg-zinc-900">
             <button @click="editeNote(trash = index)" class="invisible group-hover/item:visible "><font-awesome-icon
                 icon="fa-solid fa-x" class="col-end-7 col-span-1" /></button>
@@ -382,7 +417,8 @@ onMounted(() => {
             <div v-if="enteredDescription != null" class="col-start-1 col-span-12">
               <button @click="addChecKBox = true"><font-awesome-icon icon="fa-solid fa-plus"
                   class="object-contain h-4 w-4 place-self-center mx-1" /></button>
-              <input type="text" v-on:keyup.enter="editeNote()" placeholder="Item da lista" @focus="addChecKBox = true" class="dark:bg-zinc-900">
+              <input type="text" v-on:keyup.enter="editeNote()" placeholder="Item da lista" @focus="addChecKBox = true"
+                class="dark:bg-zinc-900">
             </div>
 
           </div>
@@ -411,34 +447,37 @@ onMounted(() => {
 
         <input type="text" v-model="enteredTitle" placeholder="Título"
           class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
-        
-          <div v-if="descriptionList">
+
+        <div v-if="descriptionList">
           <div v-for="(enteredListDescriptions, index) in enteredListDescription" :key=enteredListDescriptions
             class="grid grid-cols-12 group/item">
             <input type="checkbox" :checked=enteredListDescriptions.checkBox id="checkedBoxItem"
               @change="editeDescriptionItem(index)"
               class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center ">
             <input type="text" :value=enteredListDescriptions.description v-on:keyup.enter="editeDescriptionItem(index)"
-              @input="event => newEnteredDescription = event.target.value" class="col-start-2 col-span-10 focus:outline-none dark:bg-zinc-900">
+              @input="event => newEnteredDescription = event.target.value"
+              class="col-start-2 col-span-10 focus:outline-none dark:bg-zinc-900">
             <button @click="deleteDescriptionItem(index)"><font-awesome-icon icon="fa-solid fa-x"
                 class="col-end-7 col-span-1 invisible group-hover/item:visible" /></button>
           </div>
           <div class="grid grid-cols-12">
             <input type="checkbox" id="checkbox" v-model="checkedBox"
               class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center">
-            <input type="text" v-model="enteredDescription" @blur="addDescriptionList()" v-on:keyup.enter="addDescriptionList()" ref="textlist"
+            <input type="text" v-model="enteredDescription" @blur="addDescriptionList()"
+              v-on:keyup.enter="addDescriptionList()" ref="textlist"
               class="col-start-2 col-span-10 focus:outline-none dark:bg-zinc-900">
             <!-- <button><font-awesome-icon icon="fa-solid fa-x" class="col-end-7 col-span-1" /></button> -->
           </div>
-           <div v-if="enteredDescription != null" class="col-start-1 col-span-12">
-              <button @click="addChecKBox = true"><font-awesome-icon icon="fa-solid fa-plus"
-                  class="object-contain h-4 w-4 place-self-center mx-1" /></button>
-              <input type="text" v-on:keyup.enter="addDescriptionList()"  placeholder="Item da lista" @focus="addChecKBox = true" class="focus:outline-none dark:bg-zinc-900">
-            </div>
+          <div v-if="enteredDescription != null" class="col-start-1 col-span-12">
+            <button @click="addChecKBox = true"><font-awesome-icon icon="fa-solid fa-plus"
+                class="object-contain h-4 w-4 place-self-center mx-1" /></button>
+            <input type="text" v-on:keyup.enter="addDescriptionList()" placeholder="Item da lista"
+              @focus="addChecKBox = true" class="focus:outline-none dark:bg-zinc-900">
+          </div>
         </div>
         <textarea v-else v-model="enteredDescription" rows="35"
           class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 m-2 bg-white border-0 dark:bg-zinc-900"
-          placeholder="Nota" required style=""></textarea>         
+          placeholder="Nota" required style=""></textarea>
       </div>
 
       <!-- View Modal Note when screen is large than 500 px  -->
@@ -455,19 +494,69 @@ onMounted(() => {
                   <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                     <div class="grid grid-cols-2">
                       <button class="place-self-start"
-                        @click="addTitleDescription(index), editeNote(), toggleModal = false"><font-awesome-icon
+                        @click="addTitleDescription(index), toggleModal = false"><font-awesome-icon
                           icon="fa-solid fa-arrow-left" /></button>
                       <button @click="toggleModal = false, removeNote()" class="place-self-end"><font-awesome-icon
                           icon="fa-solid fa-trash" style="color: #707070;" />
                       </button>
                     </div>
-                    <input :value="indexNote.title" @input="event => indexNote.title = event.target.value"
+                    <!-- <input :value="indexNote.title" @input="event => indexNote.title = event.target.value"
                       placeholder="Título"
-                      class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
-                    <textarea :value="indexNote.description" @input="event => indexNote.description = event.target.value"
+                      class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" /> -->
+                    <!-- <textarea :value="indexNote.description" @input="event => indexNote.description = event.target.value"
                       rows="35"
                       class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-zinc-900 m-1"
-                      placeholder="Nota" required style=""></textarea>
+                      placeholder="Nota" required style=""></textarea> -->
+                    <div v-if="Array.isArray(indexNote.description)">
+                      <input :value="indexNote.title" @input="event => indexNote.title = event.target.value"
+                        placeholder="Título"
+                        class="text-2xl font-bold break-words input input-bordere border-0 w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
+                      <div v-for="(entered, index) in indexNote.description" :key="entered"
+                        class="grid grid-cols-12 group/item">
+                        <input type="checkbox" :checked=entered.checkBox
+                          @change="indexNote.description[index].checkBox = !indexNote.description[index].checkBox"
+                          class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center ">
+                        <input type="text" :value=entered.description
+                          v-on:keyup.enter="indexNote.description[0].description"
+                          @input="event => indexNote.description[index].description = event.target.value"
+                          class="col-start-2 col-span-10 focus:outline-none dark:bg-zinc-900">
+                        <button @click="editeNote(trash = index)"
+                          class="invisible group-hover/item:visible "><font-awesome-icon icon="fa-solid fa-x"
+                            class="col-end-7 col-span-1" /></button>
+                      </div>
+
+                      <div class="grid grid-cols-12">
+                        <div v-if="addChecKBox" class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center ">
+                          <input type="checkbox" id="checkbox" v-model="checkedBox"
+                            class="object-contain h-4 w-4 place-self-center ">
+                        </div>
+                        <div v-else>
+                          <button @click="addChecKBox = true"><font-awesome-icon icon="fa-solid fa-plus"
+                              class="object-contain h-4 w-4 place-self-center mx-1" /></button>
+                        </div>
+                        <div class="col-start-2 col-span-10">
+                          <input type="text" v-on:keyup.enter="editeNote()" placeholder="Item da lista"
+                            v-model="enteredDescription" @focus="addChecKBox = true" @blur="editeNote()"
+                            class="focus:outline-none dark:bg-zinc-900">
+                        </div>
+                        <div v-if="enteredDescription != null" class="col-start-1 col-span-12">
+                          <button @click="addChecKBox = true"><font-awesome-icon icon="fa-solid fa-plus"
+                              class="object-contain h-4 w-4 place-self-center mx-1" /></button>
+                          <input type="text" v-on:keyup.enter="editeNote()" placeholder="Item da lista"
+                            @focus="addChecKBox = true" class="dark:bg-zinc-900">
+                        </div>
+
+                      </div>
+                    </div>
+                    <div v-else>
+                      <input :value="indexNote.title" @input="event => indexNote.title = event.target.value"
+                        placeholder="Título"
+                        class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
+                      <textarea :value="indexNote.description"
+                        @input="event => indexNote.description = event.target.value" rows="35"
+                        class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-zinc-900 m-1"
+                        placeholder="Nota" required style=""></textarea>
+                    </div>
                     <div class="mt-2">
                     </div>
                   </div>
