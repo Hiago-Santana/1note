@@ -382,7 +382,7 @@ onMounted(() => {
             <div v-if="enteredDescription != null" class="col-start-1 col-span-12">
               <button @click="addChecKBox = true"><font-awesome-icon icon="fa-solid fa-plus"
                   class="object-contain h-4 w-4 place-self-center mx-1" /></button>
-              <input type="text" v-on:keyup.enter="editeNote()" placeholder="Item da lista" @focus="addChecKBox = true">
+              <input type="text" v-on:keyup.enter="editeNote()" placeholder="Item da lista" @focus="addChecKBox = true" class="dark:bg-zinc-900">
             </div>
 
           </div>
@@ -414,32 +414,31 @@ onMounted(() => {
         
           <div v-if="descriptionList">
           <div v-for="(enteredListDescriptions, index) in enteredListDescription" :key=enteredListDescriptions
-            class="grid grid-cols-12">
+            class="grid grid-cols-12 group/item">
             <input type="checkbox" :checked=enteredListDescriptions.checkBox id="checkedBoxItem"
               @change="editeDescriptionItem(index)"
               class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center ">
             <input type="text" :value=enteredListDescriptions.description v-on:keyup.enter="editeDescriptionItem(index)"
               @input="event => newEnteredDescription = event.target.value" class="col-start-2 col-span-10 focus:outline-none dark:bg-zinc-900">
             <button @click="deleteDescriptionItem(index)"><font-awesome-icon icon="fa-solid fa-x"
-                class="col-end-7 col-span-1 " /></button>
+                class="col-end-7 col-span-1 invisible group-hover/item:visible" /></button>
           </div>
           <div class="grid grid-cols-12">
             <input type="checkbox" id="checkbox" v-model="checkedBox"
               class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center">
             <input type="text" v-model="enteredDescription" @blur="addDescriptionList()" v-on:keyup.enter="addDescriptionList()" ref="textlist"
               class="col-start-2 col-span-10 focus:outline-none dark:bg-zinc-900">
-            <button><font-awesome-icon icon="fa-solid fa-x" class="col-end-7 col-span-1" /></button>
+            <!-- <button><font-awesome-icon icon="fa-solid fa-x" class="col-end-7 col-span-1" /></button> -->
           </div>
-        </div>
-        <textarea v-else v-model="enteredDescription" rows="35"
-          class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 m-2 bg-white border-0 dark:bg-zinc-900"
-          placeholder="Nota" required style=""></textarea>
-
-          <div v-if="enteredDescription != null" class="col-start-1 col-span-12">
+           <div v-if="enteredDescription != null" class="col-start-1 col-span-12">
               <button @click="addChecKBox = true"><font-awesome-icon icon="fa-solid fa-plus"
                   class="object-contain h-4 w-4 place-self-center mx-1" /></button>
               <input type="text" v-on:keyup.enter="addDescriptionList()"  placeholder="Item da lista" @focus="addChecKBox = true" class="focus:outline-none dark:bg-zinc-900">
             </div>
+        </div>
+        <textarea v-else v-model="enteredDescription" rows="35"
+          class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 m-2 bg-white border-0 dark:bg-zinc-900"
+          placeholder="Nota" required style=""></textarea>         
       </div>
 
       <!-- View Modal Note when screen is large than 500 px  -->
