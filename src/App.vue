@@ -13,10 +13,10 @@ const allNote = ref([]);
 const toggleTitle = ref(false);
 const screenWidth = ref(window.innerWidth)
 const toggleWidht = ref('');
-const valueSearch = ref('');
+const valueSearch = ref(null);
 const searchResult = ref([]);
 const toggleSearch = ref(false);
-const valueSearchCopy = ref();
+const valueSearchCopy = ref(null);
 const buttonEnterNote = ref(false);
 const index = new Index({ tokenize: "full" });
 const noNote = ref(false);
@@ -45,18 +45,19 @@ async function searchNote() {
         const id = result[i];
         const title = allNote.value.find(Element => Element.id == id).title
         const description = allNote.value.find(Element => Element.id == id).description
-        searchResult.value.push([{ id, title, description }]);
+        searchResult.value.push({ id: id, title: title, description: description });
       }
     } else
       if (searchResult.value.length > 0) {
         toggleSearch.value = true;
       }
   }
+  console.log("searchResult", searchResult.value)
 }
 
 const returnSearch = () => {
-  searchResult.value = "";
-  valueSearch.value = "";
+  searchResult.value = null;
+  valueSearch.value = null;
   toggleSearch.value = false;
 }
 
@@ -87,7 +88,7 @@ const viewNote = (id) => {
         for (let i = 0; i < sizeDescription; i++) {
 
           console.log("descriptionValue.value[i].description", descriptionValue.value[i].description)
-          descriptionList.value.push({ checkBox: descriptionValue.value[i].checkBox, description: descriptionValue.value[i].description, trashButton: false })
+          descriptionList.value.push({ checkBox: descriptionValue.value[i].checkBox, description: descriptionValue.value[i].description })
         }
         console.log("descripionList", descriptionList.value)
         descriptionValue.value = descriptionList.value
@@ -275,14 +276,27 @@ onMounted(() => {
       </nav>
 
       <!-- Search Result -->
-      <div v-if="!buttonEnterNote && !toggleModal" class=" flex flex-col w-full dark:bg-zinc-900 p-[2rem] py-0">
+      <div v-if="!buttonEnterNote && !toggleModal" class=" flex flex-col w-full dark:bg-zinc-900 p-[2rem] py-0 mb-4">
         <div class="grid xl:grid-cols-9 xl:gap-4 md:grid-cols-5 md:gap-3 ph:grid-cols-2 ph:gap-2 dark:bg-zinc-900">
           <div
             class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] p-2 rounded-md mt-2 content-start break-words font-semibold hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] dark:bg-zinc-900"
-            v-for="entered in searchResult" :key="entered" @click="viewNote(entered[0].id), toggleTitle = false">{{
-              entered[0].title
+            v-for="entered in searchResult" :key="entered" @click="viewNote(entered.id), toggleTitle = false">{{
+              entered.title
             }}
-            <p class="font-normal text-start dark:bg-zinc-900">{{ entered[0].description }}</p>
+            <div v-if="Array.isArray(entered.description)">
+              
+              <div v-for="entereds in entered.description" :key="entereds" class="grid grid-cols-12">
+                <input type="checkbox" :checked=entereds.checkBox
+                  class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center mx-2 ">
+                <input type="text" :value=entereds.description
+                  class="col-start-2 col-span-11 ml-1 font-normal dark:bg-zinc-900">
+              </div>
+            </div>
+            <div v-else>
+              
+              <p class="font-normal text-left dark:bg-zinc-900">{{ entered.description }}</p>
+            </div>
+            <!-- <p class="font-normal text-start dark:bg-zinc-900">{{ entered.description }}</p> -->
           </div>
         </div>
       </div>
@@ -291,8 +305,8 @@ onMounted(() => {
       <div v-if="!toggleSearch" class="w-full flex flex-col dark:bg-zinc-900 p-[2rem] py-0 pt-2">
         <div v-if="!toggleWidht" class="flex justify-center ">
           <div
-            class="w-[30rem] shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] p-1 rounded-md dark:bg-zinc-900 mb-2">
-            <div v-if="toggleTitle" class="grid grid-cols-2">
+            class="w-[30rem] shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)] hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] px-4 py-2 rounded-md dark:bg-zinc-900 mb-2">
+            <div v-if="toggleTitle" class="grid grid-cols-3">
               <button class="place-self-start"
                 @click="addTitleDescription(index), toggleTitle = false, toggleModal = false, descriptionList = false"><font-awesome-icon
                   icon="fa-solid fa-arrow-left" /></button>
@@ -307,42 +321,37 @@ onMounted(() => {
               placeholder="Crie um título para sua nota"
               class="text-lg font-medium break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
 
-              <div v-if="descriptionList && toggleTitle">
-          <div v-for="(enteredListDescriptions, index) in enteredListDescription" :key=enteredListDescriptions
-            class="grid grid-cols-12 group/item">
-            <input type="checkbox" :checked=enteredListDescriptions.checkBox id="checkedBoxItem"
-              @change="editeDescriptionItem(index)"
-              class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center ">
-            <input type="text" :value=enteredListDescriptions.description v-on:keyup.enter="editeDescriptionItem(index)"
-              @input="event => newEnteredDescription = event.target.value"
-              class="col-start-2 col-span-10 focus:outline-none dark:bg-zinc-900">
-            <button @click="deleteDescriptionItem(index)"><font-awesome-icon icon="fa-solid fa-x"
-                class="col-end-7 col-span-1 invisible group-hover/item:visible" /></button>
-          </div>
-          <div class="grid grid-cols-12">
-            <input type="checkbox" id="checkbox" v-model="checkedBox"
-              class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center">
-            <input type="text" v-model="enteredDescription" @blur="addDescriptionList()"
-              v-on:keyup.enter="addDescriptionList()" ref="textlist"
-              class="col-start-2 col-span-10 focus:outline-none dark:bg-zinc-900">
-            <!-- <button><font-awesome-icon icon="fa-solid fa-x" class="col-end-7 col-span-1" /></button> -->
-          </div>
-          <div v-if="enteredDescription != null" class="col-start-1 col-span-12">
-            <button @click="addChecKBox = true"><font-awesome-icon icon="fa-solid fa-plus"
-                class="object-contain h-4 w-4 place-self-center mx-1" /></button>
-            <input type="text" v-on:keyup.enter="addDescriptionList()" placeholder="Item da lista"
-              @focus="addChecKBox = true" class="focus:outline-none dark:bg-zinc-900">
-          </div>
-        </div>
-        <textarea v-if="toggleTitle && !descriptionList" v-model="enteredDescription" rows="5"
-          class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 m-2 bg-white border-0 dark:bg-zinc-900"
-          placeholder="Nota" required style=""></textarea>
-
-            <!-- <div v-if="toggleTitle">
-              <textarea v-model="enteredDescription" rows="5" autoResize
-                class="m-1 overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-zinc-900"
-                placeholder="Criar uma nota" required style=""></textarea>
-            </div> -->
+            <div v-if="descriptionList && toggleTitle">
+              <div v-for="(enteredListDescriptions, index) in enteredListDescription" :key=enteredListDescriptions
+                class="grid grid-cols-12 group/item">
+                <input type="checkbox" :checked=enteredListDescriptions.checkBox id="checkedBoxItem"
+                  @change="editeDescriptionItem(index)"
+                  class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center ">
+                <input type="text" :value=enteredListDescriptions.description
+                  v-on:keyup.enter="editeDescriptionItem(index)"
+                  @input="event => newEnteredDescription = event.target.value"
+                  class="col-start-2 col-span-10 focus:outline-none dark:bg-zinc-900">
+                <button @click="deleteDescriptionItem(index)"><font-awesome-icon icon="fa-solid fa-x"
+                    class="col-end-7 col-span-1 invisible group-hover/item:visible" /></button>
+              </div>
+              <div class="grid grid-cols-12">
+                <input type="checkbox" id="checkbox" v-model="checkedBox"
+                  class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center">
+                <input type="text" v-model="enteredDescription" @blur="addDescriptionList()"
+                  v-on:keyup.enter="addDescriptionList()" ref="textlist"
+                  class="col-start-2 col-span-10 focus:outline-none dark:bg-zinc-900">
+                <!-- <button><font-awesome-icon icon="fa-solid fa-x" class="col-end-7 col-span-1" /></button> -->
+              </div>
+              <div v-if="enteredDescription != null" class="col-start-1 col-span-12">
+                <button @click="addChecKBox = true"><font-awesome-icon icon="fa-solid fa-plus"
+                    class="object-contain h-4 w-4 place-self-center mx-1" /></button>
+                <input type="text" v-on:keyup.enter="addDescriptionList()" placeholder="Item da lista"
+                  @focus="addChecKBox = true" class="focus:outline-none dark:bg-zinc-900">
+              </div>
+            </div>
+            <textarea v-if="toggleTitle && !descriptionList" v-model="enteredDescription" rows="5"
+              class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 m-2 bg-white border-0 dark:bg-zinc-900"
+              placeholder="Nota" required style=""></textarea>
           </div>
         </div>
 
@@ -489,8 +498,8 @@ onMounted(() => {
           <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
             <div
               class="relative transform overflow-hidden rounded-lg bg-white- text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-              <div class="bg-white dark:bg-zinc-900 mb-2 px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-                <div class="sm:flex sm:items-start">
+              <div class="bg-white dark:bg-zinc-900 mb-2 px-4 pb-4 pt-5 sm:p-6 sm:pb-4 max-h-screen">
+                <div class="">
                   <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                     <div class="grid grid-cols-2">
                       <button class="place-self-start"
@@ -500,13 +509,6 @@ onMounted(() => {
                           icon="fa-solid fa-trash" style="color: #707070;" />
                       </button>
                     </div>
-                    <!-- <input :value="indexNote.title" @input="event => indexNote.title = event.target.value"
-                      placeholder="Título"
-                      class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" /> -->
-                    <!-- <textarea :value="indexNote.description" @input="event => indexNote.description = event.target.value"
-                      rows="35"
-                      class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-zinc-900 m-1"
-                      placeholder="Nota" required style=""></textarea> -->
                     <div v-if="Array.isArray(indexNote.description)">
                       <input :value="indexNote.title" @input="event => indexNote.title = event.target.value"
                         placeholder="Título"
