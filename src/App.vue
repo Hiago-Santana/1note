@@ -52,7 +52,7 @@ async function searchNote() {
         toggleSearch.value = true;
       }
   }
-  console.log("searchResult", searchResult.value)
+  
 }
 
 const returnSearch = () => {
@@ -86,8 +86,6 @@ const viewNote = (id) => {
         const sizeDescription = descriptionValue.value.length
         const descriptionList = { 'value': [] };
         for (let i = 0; i < sizeDescription; i++) {
-
-          console.log("descriptionValue.value[i].description", descriptionValue.value[i].description)
           descriptionList.value.push({ checkBox: descriptionValue.value[i].checkBox, description: descriptionValue.value[i].description })
         }
         console.log("descripionList", descriptionList.value)
@@ -210,6 +208,7 @@ const editeNote = (trash) => {
   if (!jsonTeste.value) {
     description.value = JSON.stringify(description.value)
   }
+
   checkedBox.value = false;
   setNote(id, title, description.value);
   reloadNote();
@@ -503,7 +502,7 @@ onMounted(() => {
                   <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                     <div class="grid grid-cols-2">
                       <button class="place-self-start"
-                        @click="addTitleDescription(index), toggleModal = false"><font-awesome-icon
+                        @click="editeNote(), toggleModal = false"><font-awesome-icon
                           icon="fa-solid fa-arrow-left" /></button>
                       <button @click="toggleModal = false, removeNote()" class="place-self-end"><font-awesome-icon
                           icon="fa-solid fa-trash" style="color: #707070;" />
