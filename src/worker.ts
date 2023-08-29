@@ -11,7 +11,7 @@ export interface Env {
 	  if (pathname === "/api/beverages") {
 		// If you did not use `DB` as your binding name, change it here
 		const { results } = await env.DB.prepare(
-		  "SELECT * FROM note WHERE title = ?"
+		  "SELECT * FROM note WHERE title = ?; SELECT * FROM users WHERE nome = ?;"
 		)
 		  .bind("Bs Beverages")
 		  .all();
@@ -23,3 +23,5 @@ export interface Env {
 	  );
 	},
   };
+
+  
