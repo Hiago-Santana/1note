@@ -2,6 +2,7 @@
 
 import { onMounted, ref } from 'vue'
 import { addNote, readAllNote, deleteNote, setNote } from './components/indexeddb'
+import {getapi} from './components/worker'
 import Index from 'flexsearch';
 
 const enteredTitle = ref(null);
@@ -31,6 +32,7 @@ const checkBoxValue = ref("");
 const addChecKBox = ref(false);
 const trashButton = ref(false)
 
+      
 async function searchNote() {
   if (valueSearchCopy.value != valueSearch.value) {
     valueSearchCopy.value = valueSearch.value;
@@ -253,6 +255,7 @@ onMounted(() => {
   reloadNote(),
     window.addEventListener('resize', toggleScreen),
     toggleScreen();
+    getapi();
 });
 
 </script>
