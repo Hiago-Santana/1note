@@ -49,8 +49,31 @@
 
 
  export async function getapi() {
-    const teste = fetch('http://127.0.0.1:8787/')
+
+    const myHeaders = new Headers();
+    myHeaders.append("Accept","11")
+
+   const myInit = {
+      Method: "GET",
+      headers: myHeaders
+   }
+   
+    const teste = fetch('http://127.0.0.1:8787/', myInit)
     .then((response) => response.json())
-    .then((json) => console.log(json));
+    .then((json) => console.log(json))
+    .catch(error => { console.log(error)
+    });
+    
 
  }
+
+// var invocation = new XMLHttpRequest();
+// var url = "https://frosty-recipe-fd6f.hiago-douglas.workers.dev";
+
+// export function callOtherDomain() {
+//   if (invocation) {
+//     invocation.open("GET", url, true);
+//     invocation.onreadystatechange = handler;
+//     invocation.send();
+//   }
+// }

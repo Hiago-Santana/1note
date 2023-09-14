@@ -256,6 +256,7 @@ onMounted(() => {
     window.addEventListener('resize', toggleScreen),
     toggleScreen();
     getapi();
+    //callOtherDomain();
 });
 
 </script>
