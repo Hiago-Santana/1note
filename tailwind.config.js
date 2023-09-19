@@ -25,10 +25,10 @@ export default {
       '2xl': '1536px',
       // => @media (min-width: 1536px) { ... }
     },
-    textColor: theme => theme('colors'),
-    textColor: {
-      'text gray': '#3490dc',
-    }
+    // textColor: theme => theme('colors'),
+    // textColor: {
+    //   'text gray': '#3490dc',
+    // }
   },
   plugins: [],
 }
