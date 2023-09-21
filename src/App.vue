@@ -1,8 +1,7 @@
 <script setup>
-
 import { onMounted, ref } from 'vue'
 import { addNote, readAllNote, deleteNote, setNote } from './components/indexeddb'
-import { getapi, createAcount } from './components/worker'
+import { getapi, createAcount, logInCount } from './components/worker'
 import Index from 'flexsearch';
 
 const enteredTitle = ref(null);
@@ -37,39 +36,37 @@ const cAName = ref(null);
 const cAEmail = ref(null);
 const cAPassword = ref(null);
 const mensageAlerte = ref(null);
+const logEmail = ref(null);
+const logPassword = ref(null);
 
 
 const sigUp = () => {
-  
-  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;   
+
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const emailValidate = re.test(cAEmail.value);
   //const sizePassword = cAPassword.value.length;
-  
+
   //  console.log("emailValidate",emailValidate)
   //  console.log("cAEmail",cAEmail.value)
   //  console.log("cAPassword",cAPassword.value)
   //  console.log("cAName",cAName.value)
 
-   if(cAName.value == null || cAName.value == "") {
+  if (cAName.value == null || cAName.value == "") {
     mensageAlerte.value = "Preencha o campo nome."
-    console.log("Erro nome",cAName.value)
-   }
-   else if (emailValidate == false) {
-      mensageAlerte.value = "Insira um email válido."
-      
-   }else if(cAPassword.value == null || cAPassword.value.length <6){
-        mensageAlerte.value = "Insira uma senha com mais de 5 caracteres"
-      }
-      else {
-         //console.log("Sucesso")
-         createAcount("createAcount",cAName.value,cAEmail.value,cAPassword.value)
-      }
+    console.log("Erro nome", cAName.value)
+  }
+  else if (emailValidate == false) {
+    mensageAlerte.value = "Insira um email válido."
 
-     
-   
-
-
+  } else if (cAPassword.value == null || cAPassword.value.length < 6) {
+    mensageAlerte.value = "Insira uma senha com mais de 5 caracteres"
+  }
+  else {
+    //console.log("Sucesso")
+    createAcount("createAcount", cAName.value, cAEmail.value, cAPassword.value)
+  }
 }
+
 
 async function searchNote() {
   if (valueSearchCopy.value != valueSearch.value) {
@@ -305,28 +302,40 @@ onMounted(() => {
     <div v-if="!logIn && !buttonSignUp" class="grid content-end mx-8 h-full">
       <h1 class="text-2xl mb-1 text-blue-500">1 Note</h1>
       <h2 class="mb-10 text-sm">Suas anotações em um único lugar.</h2>
-      <button class="mb-2 bg-blue-500 rounded-md p-1">Log in</button>
-      <button @click="buttonSignUp = true" class="mb-40 dark:bg-zinc-900 border-2 border-blue-500 rounded-md p-1">Sign up</button>
+      <button @click="buttonSignUp = 'log'" class="mb-2 bg-blue-500 rounded-md p-1">Log in</button>
+      <button @click="buttonSignUp = 'sigUp'" class="mb-40 dark:bg-zinc-900 border-2 border-blue-500 rounded-md p-1">Sign
+        up</button>
 
     </div>
-    <div v-if="!logIn && buttonSignUp" class="grid content-center mx-8 h-screen">
+    <div v-if="!logIn && buttonSignUp == 'sigUp'" class="grid content-center mx-8 h-screen">
       <div class="grid grid-cols-1 grid-rows-2 content-center mx-8 h-screen">
-        <h1 class="text-2xl text-blue-500 grid content-center">Create Account</h1>
+        <h1 class="text-2xl text-blue-500 grid content-center">Crie uma conta</h1>
         <div class="grid content-center h-full">
           <p class="text-red-600">{{ mensageAlerte }}</p>
           <input type="text" placeholder="nome" v-model="cAName" class="mb-2 bg-inherit focus:outline-none">
           <input type="text" placeholder="email" v-model="cAEmail" class="mb-2 bg-inherit focus:outline-none">
-          <input type="text" placeholder="password" v-model="cAPassword" class="mb-2 bg-inherit focus:outline-none">
+          <input type="text" placeholder="senha" v-model="cAPassword" class="mb-2 bg-inherit focus:outline-none">
           <button @click="sigUp()" class="mb-2 mt-4 bg-blue-500 rounded-md p-1">Sign up</button>
           <p class="grid justify-items-center">or</p>
           <button class="mt-2 bg-inneret rounded-md p-1 border-blue-500">Log in</button>
         </div>
-
       </div>
-
-
-
     </div>
+    <div v-if="!logIn && buttonSignUp == 'log'" class="grid content-center mx-8 h-screen">
+      <div class="grid grid-cols-1 grid-rows-2 content-center mx-8 h-screen">
+        <h1 class="text-2xl text-blue-500 grid content-center">Bem vindo de volta</h1>
+        <div class="grid content-center h-full">
+          <p class="text-red-600">{{ mensageAlerte }}</p>
+          <input type="text" placeholder="email" v-model="logEmail" class="mb-2 bg-inherit focus:outline-none">
+          <input type="text" placeholder="senha" v-model="logPassword" class="mb-2 bg-inherit focus:outline-none">
+          <button @click="logInCount(logEmail,logPassword)" class="mb-2 mt-4 bg-blue-500 rounded-md p-1">Log in</button>
+          <p class="grid justify-items-center">or</p>
+          <button class="mt-2 bg-inneret rounded-md p-1 border-blue-500">Sign Up</button>
+        </div>
+      </div>
+    </div>
+
+
     <div v-if="logIn">
       <div v-if="!noNote || !toggleWidht">
         <!-- Search -->
