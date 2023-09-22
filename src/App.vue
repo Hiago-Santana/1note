@@ -285,6 +285,50 @@ const editeDescriptionItem = (idx) => {
   newEnteredDescription.value = null;
 }
 
+const date = () => {
+  // const dateNowUTC = new Date(Date.now());
+  // const dateNow = new Date(dateNowUTC)
+  const dateNow = new Date()
+  const dateZero = dateNow.toLocaleDateString({
+    year: "numeric",
+    month: "2-digit",
+    day: "2-didit",
+  })
+  const mm = dateNow.getMonth()+1;
+  const dd = dateNow.getDate();
+  const yyyy = dateNow.getFullYear();
+
+  const h = dateNow.getUTCHours();
+  const m = dateNow.getUTCMinutes();
+  const s = dateNow.getUTCSeconds();
+
+  const dateFormated = yyyy + "-" + mm + "-" + dd + " " + h + "-" + m + "-" + s
+  console.log("DateNow",dateFormated)
+  console.log("dateZero",dateZero)
+
+// var date = new Date();
+// var now_utc = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(),
+//                 date.getUTCDate(), date.getUTCHours(),
+//                 date.getUTCMinutes(), date.getUTCSeconds());
+
+// const dateUTC = new Date(now_utc)
+
+// const mm = dateUTC.getMonth()+1;
+//   const dd = dateUTC.getDate();
+//   const yyyy = dateUTC.getFullYear();
+
+//   const h = dateUTC.getHours();
+//   const m = dateUTC.getMinutes();
+//   const s = dateUTC.getSeconds();
+
+//   const dateFormated = yyyy + "-" + mm + "-" + dd + " " + h + "-" + m + "-" + s
+
+//   console.log("DateNow",dateFormated)
+// console.log("dateUTC", dateUTC)
+// console.log(new Date(now_utc));
+// console.log(date.toISOString());
+
+}
 //load the function when page is opened
 onMounted(() => {
   reloadNote(),
@@ -292,6 +336,7 @@ onMounted(() => {
     toggleScreen();
   getapi();
   //callOtherDomain();
+  date()
 });
 
 </script>

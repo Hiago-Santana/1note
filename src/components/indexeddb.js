@@ -43,3 +43,19 @@ export async function setNote(id,title,description) {
   const db = await openDataBase();
   await db.put("note",{id: id, title: title, description: description})  
 }
+
+
+
+const date = () => {
+  const dateNow = new Date(Date.now()) ;
+  const mm = dateNow.getMonth()+1;
+  const dd = dateNow.getDate();
+  const yyyy = dateNow.getFullYear();
+
+  const h = dateNow.getUTCHours();
+  const m = dateNow.getUTCMinutes();
+  const s = dateNow.getUTCSeconds();
+
+  const dateFormated = yyyy + "-" + mm + "-" + dd + " " + h + "-" + m + "-" + s
+  console.log("DateNow",dateFormated)
+}
