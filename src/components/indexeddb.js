@@ -34,6 +34,7 @@ export async function readAllNote() {
   return allNote;
 }
 
+
 export async function deleteNote(id) {
   const db = await openDataBase();
   db.delete("note", id);
@@ -47,7 +48,14 @@ export async function setNote(id,title,description) {
 
 
 const date = () => {
-  const dateNow = new Date(Date.now()) ;
+  // const dateNowUTC = new Date(Date.now());
+  // const dateNow = new Date(dateNowUTC)
+  const dateNow = new Date()
+  const dateZero = dateNow.toLocaleDateString({
+    year: "numeric",
+    month: "2-digit",
+    day: "2-didit",
+  })
   const mm = dateNow.getMonth()+1;
   const dd = dateNow.getDate();
   const yyyy = dateNow.getFullYear();
@@ -58,4 +66,45 @@ const date = () => {
 
   const dateFormated = yyyy + "-" + mm + "-" + dd + " " + h + "-" + m + "-" + s
   console.log("DateNow",dateFormated)
+  console.log("dateZero",dateZero)
+
+// var date = new Date();
+// var now_utc = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(),
+//                 date.getUTCDate(), date.getUTCHours(),
+//                 date.getUTCMinutes(), date.getUTCSeconds());
+
+// const dateUTC = new Date(now_utc)
+
+// const mm = dateUTC.getMonth()+1;
+//   const dd = dateUTC.getDate();
+//   const yyyy = dateUTC.getFullYear();
+
+//   const h = dateUTC.getHours();
+//   const m = dateUTC.getMinutes();
+//   const s = dateUTC.getSeconds();
+
+//   const dateFormated = yyyy + "-" + mm + "-" + dd + " " + h + "-" + m + "-" + s
+
+//   console.log("DateNow",dateFormated)
+// console.log("dateUTC", dateUTC)
+// console.log(new Date(now_utc));
+// console.log(date.toISOString());
+
+}
+
+export async function readCloundDataBase (result) {
+
+  const id = result.userAuthentication.idUser
+  const allNote = await readAllNote()
+
+  // for (let i = 0; i < size ++) {
+  //   const noteUser = allNote.value.find(Element => Element.id == id).title
+
+  // }
+
+
+
+
+
+console.log("allNote",allNote)
 }

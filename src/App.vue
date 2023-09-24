@@ -1,4 +1,10 @@
 <script setup>
+
+require("dotenv-safe").config();
+const jwt = require('jsonwebtoken');
+
+import {dotenvsafe} from 'dotenv-safe'
+
 import { onMounted, ref } from 'vue'
 import { addNote, readAllNote, deleteNote, setNote } from './components/indexeddb'
 import { getapi, createAcount, logInCount } from './components/worker'
@@ -36,8 +42,9 @@ const cAName = ref(null);
 const cAEmail = ref(null);
 const cAPassword = ref(null);
 const mensageAlerte = ref(null);
-const logEmail = ref(null);
-const logPassword = ref(null);
+const logEmail = ref('hiago@hotmail.com');
+const logPassword = ref("123456");
+const userLoged = ref(false)
 
 
 const sigUp = () => {
@@ -64,6 +71,14 @@ const sigUp = () => {
   else {
     //console.log("Sucesso")
     createAcount("createAcount", cAName.value, cAEmail.value, cAPassword.value)
+  }
+}
+
+async function userLog (logEmail,logPassword) {
+
+  const log = await logInCount(logEmail, logPassword)
+  if(log.userAuthentication.authentication == true) {
+    logIn.value = true;
   }
 }
 
@@ -285,50 +300,7 @@ const editeDescriptionItem = (idx) => {
   newEnteredDescription.value = null;
 }
 
-const date = () => {
-  // const dateNowUTC = new Date(Date.now());
-  // const dateNow = new Date(dateNowUTC)
-  const dateNow = new Date()
-  const dateZero = dateNow.toLocaleDateString({
-    year: "numeric",
-    month: "2-digit",
-    day: "2-didit",
-  })
-  const mm = dateNow.getMonth()+1;
-  const dd = dateNow.getDate();
-  const yyyy = dateNow.getFullYear();
 
-  const h = dateNow.getUTCHours();
-  const m = dateNow.getUTCMinutes();
-  const s = dateNow.getUTCSeconds();
-
-  const dateFormated = yyyy + "-" + mm + "-" + dd + " " + h + "-" + m + "-" + s
-  console.log("DateNow",dateFormated)
-  console.log("dateZero",dateZero)
-
-// var date = new Date();
-// var now_utc = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(),
-//                 date.getUTCDate(), date.getUTCHours(),
-//                 date.getUTCMinutes(), date.getUTCSeconds());
-
-// const dateUTC = new Date(now_utc)
-
-// const mm = dateUTC.getMonth()+1;
-//   const dd = dateUTC.getDate();
-//   const yyyy = dateUTC.getFullYear();
-
-//   const h = dateUTC.getHours();
-//   const m = dateUTC.getMinutes();
-//   const s = dateUTC.getSeconds();
-
-//   const dateFormated = yyyy + "-" + mm + "-" + dd + " " + h + "-" + m + "-" + s
-
-//   console.log("DateNow",dateFormated)
-// console.log("dateUTC", dateUTC)
-// console.log(new Date(now_utc));
-// console.log(date.toISOString());
-
-}
 //load the function when page is opened
 onMounted(() => {
   reloadNote(),
@@ -336,7 +308,6 @@ onMounted(() => {
     toggleScreen();
   getapi();
   //callOtherDomain();
-  date()
 });
 
 </script>
@@ -373,7 +344,7 @@ onMounted(() => {
           <p class="text-red-600">{{ mensageAlerte }}</p>
           <input type="text" placeholder="email" v-model="logEmail" class="mb-2 bg-inherit focus:outline-none">
           <input type="text" placeholder="senha" v-model="logPassword" class="mb-2 bg-inherit focus:outline-none">
-          <button @click="logInCount(logEmail,logPassword)" class="mb-2 mt-4 bg-blue-500 rounded-md p-1">Log in</button>
+          <button @click="userLog(logEmail,logPassword)" class="mb-2 mt-4 bg-blue-500 rounded-md p-1">Log in</button>
           <p class="grid justify-items-center">or</p>
           <button class="mt-2 bg-inneret rounded-md p-1 border-blue-500">Sign Up</button>
         </div>
