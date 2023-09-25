@@ -1,13 +1,18 @@
 <script setup>
 
-require("dotenv-safe").config();
-const jwt = require('jsonwebtoken');
+// require("dotenvsafe").config();
+//const jwt = require('jsonwebtoken');
 
-import {dotenvsafe} from 'dotenv-safe'
+// import {dontenvsafe} from 'dotenvsafe'
+// import {jsonwebtoken} from 'jsonwebtoken'
+
+
+// require(dontenvsafe).config();
+// const jwt = require(jsonwebtoken);
 
 import { onMounted, ref } from 'vue'
 import { addNote, readAllNote, deleteNote, setNote } from './components/indexeddb'
-import { getapi, createAcount, logInCount } from './components/worker'
+import { getapi, createAcount, logInCount, insertNote } from './components/worker'
 import Index from 'flexsearch';
 
 const enteredTitle = ref(null);
@@ -42,9 +47,10 @@ const cAName = ref(null);
 const cAEmail = ref(null);
 const cAPassword = ref(null);
 const mensageAlerte = ref(null);
-const logEmail = ref('hiago@hotmail.com');
+const logEmail = ref('gabriel@hotmail.com');
 const logPassword = ref("123456");
-const userLoged = ref(false)
+const userLoged = ref(false);
+const token = ref(null);
 
 
 const sigUp = () => {
@@ -79,6 +85,8 @@ async function userLog (logEmail,logPassword) {
   const log = await logInCount(logEmail, logPassword)
   if(log.userAuthentication.authentication == true) {
     logIn.value = true;
+    token.value = log.userAuthentication.token
+    //console.log("token",token.value)
   }
 }
 
@@ -202,6 +210,7 @@ async function addTitleDescription(index) {
   }
 
   if (title != null || description.value != null) {
+    await insertNote(title,description.value,token.value)
     await addNote(title, description.value);
     const note = await readAllNote();
     allNote.value = note;

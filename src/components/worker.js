@@ -1,7 +1,7 @@
 // // api url
 // // const api_url =	"https://frosty-recipe-fd6f.hiago-douglas.workers.dev";
 // const api_url =	"http://127.0.0.1:8787";
-import { readCloundDataBase } from './indexeddb'
+import { readCloundDataBase } from "./indexeddb";
 
 export async function getapi() {
   const myHeaders = new Headers();
@@ -20,9 +20,14 @@ export async function getapi() {
     });
 }
 
- export async function createAcount(type, cAName,cAEmail,cAPassword) {
-  
-  try {const data = {"type": type,"cAName": cAName, "cAEmail":cAEmail,"cAPassword":cAPassword}
+export async function createAcount(type, cAName, cAEmail, cAPassword) {
+  try {
+    const data = {
+      type: type,
+      cAName: cAName,
+      cAEmail: cAEmail,
+      cAPassword: cAPassword,
+    };
     const response = await fetch("http://127.0.0.1:8787/", {
       method: "POST",
       headers: {
@@ -38,36 +43,73 @@ export async function getapi() {
   }
   //console.log("data",data)
 }
-    
 
 export async function logInCount(logEmail, logPassword) {
-let result = null;
-  try {const data = {"type": "logIn","logEmail":logEmail,"logPassword":logPassword}
-  const response = await fetch("http://127.0.0.1:8787/", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
+  let result = null;
+  try {
+    const data = {
+      type: "logIn",
+      logEmail: logEmail,
+      logPassword: logPassword,
+    };
+    const response = await fetch("http://127.0.0.1:8787/", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
 
-  result = await response.json();
-  console.log("Success:", result.userAuthentication.authentication);
-} catch (error) {
-  console.error("Error:", error);
+    result = await response.json();
+    console.log("Success:", result);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+  //console.log("data",data)
+
+  if (result.userAuthentication.authentication === true) {
+    const id = result.userAuthentication.id;
+    //console.log("Success:", result.authentication);
+    readCloundDataBase(result);
+    // const token = jwt.sign({id},process.env.SECRET, {expireIn: 300})
+    // console.log("token", token)
+
+    return result;
+  }
 }
-//console.log("data",data)
 
-if(result.userAuthentication.authentication === true){
-  
-  console.log("Success:", result.authentication);
-  readCloundDataBase(result)
+export async function insertNote(title, description, token) {
+  let result = null;
+  console.log("token enviado",token)
+  try {
+    const data = {
+      type: "insertNote",
+      title: title,
+      description: description,
+      token: token,
+    };
+    const response = await fetch("http://127.0.0.1:8787/", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
 
-  return result
+    result = await response.json();
+    console.log("Success:", result);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+  //console.log("data",data)
 
-  
+  if (result.res.authentication === true) {
+    const id = result.res.id;
+    //console.log("Success:", result.authentication);
+    readCloundDataBase(result);
+    // const token = jwt.sign({id},process.env.SECRET, {expireIn: 300})
+    // console.log("token", token)
 
+    return result;
+  }
 }
-
-}
-

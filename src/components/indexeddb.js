@@ -106,5 +106,5 @@ export async function readCloundDataBase (result) {
 
 
 
-console.log("allNote",allNote)
+//console.log("allNote",allNote)
 }
