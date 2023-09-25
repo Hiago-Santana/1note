@@ -103,7 +103,7 @@ export async function insertNote(title, description, token) {
   }
   //console.log("data",data)
 
-  if (result.res.authentication === true) {
+  if (result.res.noteinsert === true) {
     const id = result.res.id;
     //console.log("Success:", result.authentication);
     readCloundDataBase(result);
