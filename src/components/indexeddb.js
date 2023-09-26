@@ -41,20 +41,36 @@ export async function addNote(noteId, usersId, title, description, lastUpdate, d
 export async function readAllNote() {
   // let allNote = [];
   const db = await openDataBase();
-  const allNote = await db.getAll("note");
+  const allNoteUser = await db.getAll("note");
   const deleted = !null
-  
-  // const size = allNote.length
-  // for(let i = 0; i < size; i++){
-  //   const search = allNote.find(Element => Element.deleted == null).id
-  //   const allNote = null;
-  //   allNote.value.push({})
+  let allNote = [];
+  const size = allNoteUser.length
 
-  // }
+  for(let i = 0; i < size; i++){
+    //const search = allNote.find(Element => Element.deleted == null).id
+    const deleted = allNoteUser[i].deleted
+    console.log("deleted",deleted)
+    if(deleted == null) {
+      console.log("teste",allNote)
+      const id = allNoteUser[i].id;
+      const noteId = allNoteUser[i].noteId;
+      const usersId = allNoteUser[i].usersId; 
+      const title = allNoteUser[i].title; 
+      const description = allNoteUser[i].description; 
+      const lastUpdate = allNoteUser[i].lastUpdate; 
+      //const deleted = allNoteUser.value[i].deleted;  
+      //allNote.push({})
+      allNote.push({id: id, noteId:noteId, usersId:usersId, title: title, description: description, lastUpdate:lastUpdate, deleted:null})
+    }
+    //const allNote = null;
+    
 
-  
-console.log("TEste addNote",teste)
+  }
+
+  console.log("allNOte", allNote[0].noteId)
+//console.log("TEste addNote",teste)
   return allNote;
+  ;
 }
 
 
