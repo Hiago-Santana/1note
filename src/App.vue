@@ -12,7 +12,7 @@
 
 import { onMounted, ref } from 'vue'
 import { addNote, readAllNote, deleteNote, setNote } from './components/indexeddb'
-import { getapi, createAcount, logInCount, insertNote } from './components/worker'
+import { getapi, createAcount, logInCount, insertNote, deleteNoteClound } from './components/worker'
 import Index from 'flexsearch';
 
 const enteredTitle = ref(null);
@@ -80,10 +80,10 @@ const sigUp = () => {
   }
 }
 
-async function userLog (logEmail,logPassword) {
+async function userLog(logEmail, logPassword) {
 
   const log = await logInCount(logEmail, logPassword)
-  if(log.userAuthentication.authentication == true) {
+  if (log.userAuthentication.authentication == true) {
     logIn.value = true;
     token.value = log.userAuthentication.token
     //console.log("token",token.value)
@@ -132,12 +132,22 @@ function toggleScreen() {
 
 const viewNote = (id) => {
   //see note when clicked 
+  console.log("id Note View", id)
   const size = allNote.value.length;
   for (let i = 0; i < size; i++) {
     const idArray = allNote.value[i].id;
     if (idArray === id) {
       indexNote.value = null;
+      const noteId = allNote.value[i].noteId
+      const usersId = allNote.value[i].usersId
+      const lastUpdate = allNote.value[i].lastUpdate
+      const deleted = allNote.value[i].deleted
+
+
+
+      console.log("noteID View Note", noteId)
       const title = allNote.value[i].title;
+      console.log("title View Note", title)
       const descriptionValue = { 'value': allNote.value[i].description };
       console.log("descriptionValue", descriptionValue.value)
       const testArray = Array.isArray(descriptionValue.value)
@@ -151,8 +161,8 @@ const viewNote = (id) => {
         console.log("descripionList", descriptionList.value)
         descriptionValue.value = descriptionList.value
       }
-      indexNote.value = { id: id, title: title, description: descriptionValue.value };
-      indexNoteCopy.value = { id: id, title: title, description: descriptionValue.value };
+      indexNote.value = { id: id, noteId: noteId, usersId:usersId, title: title, description: descriptionValue.value, lastUpdate:lastUpdate, deleted:deleted };
+      indexNoteCopy.value = { id: id, noteId: noteId, usersId:usersId, title: title, description: descriptionValue.value, lastUpdate:lastUpdate, deleted:deleted };
       toggleModal.value = true;
     }
   }
@@ -162,6 +172,7 @@ const viewNote = (id) => {
 async function reloadNote() {
   //Get data from database and reload notes  
   allNote.value = await readAllNote()
+  console.log("allNote", allNote.value)
   const size = allNote.value.length;
 
   for (let i = 0; i < size; i++) {
@@ -170,6 +181,7 @@ async function reloadNote() {
     description.value = allNote.value[i].description;
     const jsonTeste = isJson(description.value)
     const id = allNote.value[i].id;
+
 
     if (jsonTeste) {
       description.value = JSON.parse(description.value)
@@ -210,8 +222,8 @@ async function addTitleDescription(index) {
   }
 
   if (title != null || description.value != null) {
-    await insertNote(title,description.value,token.value)
-    await addNote(title, description.value);
+    await insertNote(title, description.value, token.value)
+    //await addNote(title, description.value);
     const note = await readAllNote();
     allNote.value = note;
     enteredTitle.value = null;
@@ -232,11 +244,20 @@ async function addTitleDescription(index) {
 const removeNote = () => {
   //Delete note
   const id = indexNote.value.id;
-  deleteNote(id);
-  index.remove(id);
-  reloadNote();
-  valueSearchCopy.value = null;
-  searchNote();
+  const noteId = indexNote.value.noteId
+  const usersId = indexNote.value.usersId
+  const title = indexNote.value.title
+  const description = indexNote.value.description
+  const lastUpdate = indexNote.value.lastUpdate
+  const tokenUser = token.value
+
+  console.log("noteId removeNote", noteId)
+  deleteNoteClound(id, noteId, usersId, title, description, lastUpdate, tokenUser)
+  // deleteNote(id);
+  // index.remove(id);
+  // reloadNote();
+  // valueSearchCopy.value = null;
+  // searchNote();
   toggleModal.value = false;
 }
 
@@ -260,6 +281,10 @@ const editeNote = (trash) => {
     toggleModal.value = true;
   }
 
+  const noteId = indexNote.value.noteId;
+  const usersId = indexNote.value.usersId;
+  const lastUpdate = indexNote.value.lastUpdate;
+  const deleted = indexNote.value.deleted;
   const id = indexNote.value.id;
   const title = indexNote.value.title;
   const description = { 'value': indexNote.value.description };
@@ -271,7 +296,7 @@ const editeNote = (trash) => {
   }
 
   checkedBox.value = false;
-  setNote(id, title, description.value);
+  setNote(id, noteId, usersId, title, description.value, lastUpdate, deleted);
   reloadNote();
   searchNote();
   enteredDescription.value = null;
@@ -353,7 +378,7 @@ onMounted(() => {
           <p class="text-red-600">{{ mensageAlerte }}</p>
           <input type="text" placeholder="email" v-model="logEmail" class="mb-2 bg-inherit focus:outline-none">
           <input type="text" placeholder="senha" v-model="logPassword" class="mb-2 bg-inherit focus:outline-none">
-          <button @click="userLog(logEmail,logPassword)" class="mb-2 mt-4 bg-blue-500 rounded-md p-1">Log in</button>
+          <button @click="userLog(logEmail, logPassword)" class="mb-2 mt-4 bg-blue-500 rounded-md p-1">Log in</button>
           <p class="grid justify-items-center">or</p>
           <button class="mt-2 bg-inneret rounded-md p-1 border-blue-500">Sign Up</button>
         </div>
@@ -539,7 +564,7 @@ onMounted(() => {
               class="text-2xl font-bold break-words input input-bordere w-full rounded-md m-1 focus:outline-none dark:bg-zinc-900" />
             <textarea :value="indexNote.description" @input="event => indexNote.description = event.target.value"
               rows="35"
-              class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-zinc-900 m-1"
+              class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-zinc-900 m-1 dark:text-gray-300"
               placeholder="Nota" required style=""></textarea>
           </div>
         </div>
@@ -588,7 +613,7 @@ onMounted(() => {
             </div>
           </div>
           <textarea v-else v-model="enteredDescription" rows="35"
-            class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 m-2 bg-white border-0 dark:bg-zinc-900"
+            class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 m-2 bg-white border-0 dark:bg-zinc-900 dark:text-gray-300"
             placeholder="Nota" required style=""></textarea>
         </div>
 

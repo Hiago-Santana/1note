@@ -1,4 +1,7 @@
 import { openDB, deleteDB, wrap, unwrap } from "idb";
+import Index from 'flexsearch';
+
+const index = new Index({ tokenize: "full" });
 
 export function openDataBase() {
   return new Promise((resolve, reject) => {
@@ -21,30 +24,65 @@ export function openDataBase() {
   });
 }
 
-export async function addNote(title, description) {
+// export async function addNote(title, description) {
+//   const db = await openDataBase(); 
+//   db.add("note", {title: title, description: description});
+//   const store = db.transaction('note').store;
+//   const cursor = await store.openCursor();
+// }
+
+export async function addNote(noteId, usersId, title, description, lastUpdate, deleted) {
   const db = await openDataBase(); 
-  db.add("note", {title: title, description: description});
+  db.add("note", {noteId:noteId, usersId:usersId, title: title, description: description, lastUpdate:lastUpdate, deleted:deleted});
   const store = db.transaction('note').store;
   const cursor = await store.openCursor();
 }
 
 export async function readAllNote() {
+  // let allNote = [];
   const db = await openDataBase();
   const allNote = await db.getAll("note");
+  const deleted = !null
+  
+  // const size = allNote.length
+  // for(let i = 0; i < size; i++){
+  //   const search = allNote.find(Element => Element.deleted == null).id
+  //   const allNote = null;
+  //   allNote.value.push({})
+
+  // }
+
+  
+console.log("TEste addNote",teste)
   return allNote;
 }
 
 
+// export async function deleteNote(id) {
+//   const db = await openDataBase();
+//   db.delete("note", id);
+// }
+
 export async function deleteNote(id) {
-  const db = await openDataBase();
-  db.delete("note", id);
-}
+    const db = await openDataBase();
+    db.delete("note", id);
+  }
 
-export async function setNote(id,title,description) {
-  const db = await openDataBase();
-  await db.put("note",{id: id, title: title, description: description})  
-}
+// export async function setNote(id,title,description) {
+//   const db = await openDataBase();
+//   await db.put("note",{id: id, title: title, description: description})  
+// }
 
+export async function setNote(id, noteId, usersId, title, description, lastUpdate, deleted) {
+  const db = await openDataBase();
+  if(deleted == null){
+     await db.put("note",{id: id, noteId:noteId, usersId:usersId, title: title, description: description, lastUpdate:lastUpdate, deleted:null})  
+}else{
+
+  await db.put("note",{id: id, noteId:noteId, usersId:usersId, title: title, description: description, lastUpdate:lastUpdate, deleted:deleted})
+}
+  }
+ 
 
 
 const date = () => {
