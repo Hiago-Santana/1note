@@ -49,9 +49,9 @@ export async function readAllNote() {
   for(let i = 0; i < size; i++){
     //const search = allNote.find(Element => Element.deleted == null).id
     const deleted = allNoteUser[i].deleted
-    console.log("deleted",deleted)
+    //console.log("deleted",deleted)
     if(deleted == null) {
-      console.log("teste",allNote)
+      //console.log("teste",allNote)
       const id = allNoteUser[i].id;
       const noteId = allNoteUser[i].noteId;
       const usersId = allNoteUser[i].usersId; 
@@ -67,7 +67,7 @@ export async function readAllNote() {
 
   }
 
-  console.log("allNOte", allNote[0].noteId)
+  //console.log("allNOte", allNote[0].noteId)
 //console.log("TEste addNote",teste)
   return allNote;
   ;
@@ -91,12 +91,8 @@ export async function deleteNote(id) {
 
 export async function setNote(id, noteId, usersId, title, description, lastUpdate, deleted) {
   const db = await openDataBase();
-  if(deleted == null){
-     await db.put("note",{id: id, noteId:noteId, usersId:usersId, title: title, description: description, lastUpdate:lastUpdate, deleted:null})  
-}else{
-
   await db.put("note",{id: id, noteId:noteId, usersId:usersId, title: title, description: description, lastUpdate:lastUpdate, deleted:deleted})
-}
+
   }
  
 

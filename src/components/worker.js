@@ -156,3 +156,45 @@ export async function deleteNoteClound(id, noteId, usersId, title, description, 
     console.log("Note dont deleted")
   }
 }
+
+export async function setNoteClound(id, noteId, usersId, title, description, lastUpdate, deleted, token) {
+  let result = null;
+  let noteinsert;
+  console.log("description Set Note", description)
+  console.log("deleteNoteClound",noteId)
+
+  try {
+    const data = {
+      type: "setNote",
+      noteId: noteId, 
+      title: title,
+      description: description,
+      deleted: deleted,      
+      token: token,
+    };
+    const response = await fetch("http://127.0.0.1:8787/", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    result = await response.json();
+    console.log("Success:", result);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+
+  if (result.res.noteChanged === "deleted" || result.res.noteChanged === "update") {
+    const dateDeleted = result.res.lastNote.results[0].deleted;
+    const update = result.res.lastNote.results[0].lastUpdate;
+    console.log("dateDeleted", dateDeleted)
+
+    //addNote(noteId, usersId, title, description, lastUpdate, deleted)
+    setNote(id, noteId, usersId, title, description, update, dateDeleted)
+
+  }else{
+    console.log("Note dont deleted")
+  }
+}

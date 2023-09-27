@@ -12,7 +12,7 @@
 
 import { onMounted, ref } from 'vue'
 import { addNote, readAllNote, deleteNote, setNote } from './components/indexeddb'
-import { getapi, createAcount, logInCount, insertNote, deleteNoteClound } from './components/worker'
+import { getapi, createAcount, logInCount, insertNote, deleteNoteClound, setNoteClound } from './components/worker'
 import Index from 'flexsearch';
 
 const enteredTitle = ref(null);
@@ -172,7 +172,7 @@ const viewNote = (id) => {
 async function reloadNote() {
   //Get data from database and reload notes  
   allNote.value = await readAllNote()
-  console.log("allNote", allNote.value)
+  //console.log("allNote", allNote.value)
   const size = allNote.value.length;
 
   for (let i = 0; i < size; i++) {
@@ -241,7 +241,27 @@ async function addTitleDescription(index) {
 
 }
 
-const removeNote = () => {
+// async function removeNote() {
+//   //Delete note
+//   const id = indexNote.value.id;
+//   const noteId = indexNote.value.noteId
+//   const usersId = indexNote.value.usersId
+//   const title = indexNote.value.title
+//   const description = indexNote.value.description
+//   const lastUpdate = indexNote.value.lastUpdate
+//   const tokenUser = token.value
+
+//   console.log("noteId removeNote", noteId)
+//   await deleteNoteClound(id, noteId, usersId, title, description, lastUpdate, tokenUser)
+//   // deleteNote(id);
+//   index.remove(id);
+//   await reloadNote();
+//   valueSearchCopy.value = null;
+//   searchNote();
+//   toggleModal.value = false;
+// }
+
+async function removeNote() {
   //Delete note
   const id = indexNote.value.id;
   const noteId = indexNote.value.noteId
@@ -252,17 +272,78 @@ const removeNote = () => {
   const tokenUser = token.value
 
   console.log("noteId removeNote", noteId)
-  deleteNoteClound(id, noteId, usersId, title, description, lastUpdate, tokenUser)
+  await deleteNoteClound(id, noteId, usersId, title, description, lastUpdate, tokenUser)
   // deleteNote(id);
-  // index.remove(id);
-  // reloadNote();
-  // valueSearchCopy.value = null;
-  // searchNote();
+  index.remove(id);
+  await reloadNote();
+  valueSearchCopy.value = null;
+  searchNote();
   toggleModal.value = false;
 }
 
-const editeNote = (trash) => {
+// const editeNote = (trash) => {
+//   //Edite note
+//   toggleModal.value = false;
+//   console.log("trash", trash)
+//   if (trash != null) {
+//     console.log("trash", trash)
+//     console.log("indexNote.value editNote 1", indexNote.value)
+//     indexNote.value.description.splice(trash, 1)
+//     console.log("indexNote.value editNote 2", indexNote.value)
+//     toggleModal.value = true;
+//   }
+
+//   if (enteredDescription.value != null) {
+//     console.log("enteredDescription.value", enteredDescription.value)
+//     const checkBox = checkedBox.value;
+//     indexNote.value.description.push({ checkBox: checkBox, description: enteredDescription.value });
+//     enteredDescription.value = null;
+//     toggleModal.value = true;
+//   }
+
+//   const noteId = indexNote.value.noteId;
+//   const usersId = indexNote.value.usersId;
+//   const lastUpdate = indexNote.value.lastUpdate;
+//   const deleted = indexNote.value.deleted;
+//   const id = indexNote.value.id;
+//   const title = indexNote.value.title;
+//   const description = { 'value': indexNote.value.description };
+//   const jsonTeste = { 'value': isJson(description.value) };
+//   console.log("editeNote CheckBox", indexNote.value.description)
+
+//   if (!jsonTeste.value) {
+//     description.value = JSON.stringify(description.value)
+//   }
+
+//   checkedBox.value = false;
+//   setNote(id, noteId, usersId, title, description.value, lastUpdate, deleted);
+//   reloadNote();
+//   searchNote();
+//   enteredDescription.value = null;
+// }
+
+async function editeNote(trash, del){
   //Edite note
+  if(del == "deleted"){
+  const id = indexNote.value.id;
+  const noteId = indexNote.value.noteId
+  const usersId = indexNote.value.usersId
+  const title = indexNote.value.title
+  const description = indexNote.value.description
+  const lastUpdate = indexNote.value.lastUpdate
+  const tokenUser = token.value
+    console.log("description editeNote = Deleted",description)
+  console.log("noteId removeNote", noteId)
+  await setNoteClound(id, noteId, usersId, title, description, lastUpdate, del, tokenUser)
+  // deleteNote(id);
+  index.remove(id);
+  await reloadNote();
+  valueSearchCopy.value = null;
+  searchNote();
+  toggleModal.value = false;
+  }else{
+
+  
   toggleModal.value = false;
   console.log("trash", trash)
   if (trash != null) {
@@ -287,19 +368,21 @@ const editeNote = (trash) => {
   const deleted = indexNote.value.deleted;
   const id = indexNote.value.id;
   const title = indexNote.value.title;
-  const description = { 'value': indexNote.value.description };
-  const jsonTeste = { 'value': isJson(description.value) };
+  let description =  indexNote.value.description;
+  const jsonTeste = { 'value': isJson(description) };
   console.log("editeNote CheckBox", indexNote.value.description)
-
+  const tokenUser = token.value
+  console.log("description editeNote",description)
   if (!jsonTeste.value) {
-    description.value = JSON.stringify(description.value)
+    description = JSON.stringify(description)
   }
 
   checkedBox.value = false;
-  setNote(id, noteId, usersId, title, description.value, lastUpdate, deleted);
-  reloadNote();
+  await setNoteClound(id, noteId, usersId, title, description, lastUpdate, deleted, tokenUser);
+  await reloadNote();
   searchNote();
   enteredDescription.value = null;
+}
 }
 
 const addDescriptionList = () => {
@@ -518,7 +601,7 @@ onMounted(() => {
             <button class="place-self-start"
               @click="editeNote(), toggleModal = false, addChecKBox = false"><font-awesome-icon
                 icon="fa-solid fa-arrow-left" /></button>
-            <button @click="toggleModal = false, removeNote()" class="place-self-end"><font-awesome-icon
+            <button @click="toggleModal = false, editeNote(null,'deleted')" class="place-self-end"><font-awesome-icon
                 icon="fa-solid fa-trash" style="color: #707070;" />
             </button>
           </div>
@@ -632,7 +715,7 @@ onMounted(() => {
                       <div class="grid grid-cols-2">
                         <button class="place-self-start" @click="editeNote(), toggleModal = false"><font-awesome-icon
                             icon="fa-solid fa-arrow-left" /></button>
-                        <button @click="toggleModal = false, removeNote()" class="place-self-end"><font-awesome-icon
+                        <button @click="toggleModal = false, editeNote(null,'deleted')" class="place-self-end"><font-awesome-icon
                             icon="fa-solid fa-trash" style="color: #707070;" />
                         </button>
                       </div>
