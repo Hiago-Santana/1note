@@ -70,7 +70,7 @@ export async function logInCount(logEmail, logPassword) {
   if (result.userAuthentication.authentication === true) {
     const id = result.userAuthentication.id;
     //console.log("Success:", result.authentication);
-    readCloundDataBase(result);
+    //readCloundDataBase(result);
     // const token = jwt.sign({id},process.env.SECRET, {expireIn: 300})
     // console.log("token", token)
 

@@ -14,6 +14,7 @@ import { onMounted, ref } from 'vue'
 import { addNote, readAllNote, deleteNote, setNote } from './components/indexeddb'
 import { getapi, createAcount, logInCount, insertNote, deleteNoteClound, setNoteClound } from './components/worker'
 import Index from 'flexsearch';
+import { faGofore } from '@fortawesome/free-brands-svg-icons';
 
 const enteredTitle = ref(null);
 const enteredDescription = ref(null);
@@ -51,6 +52,8 @@ const logEmail = ref('hiago@hotmail.com');
 const logPassword = ref("123456");
 const userLoged = ref(false);
 const token = ref(null);
+const allNoteClound = ref(null);
+let resultCloundLogin = "testeaaa";
 
 
 const sigUp = () => {
@@ -82,10 +85,12 @@ const sigUp = () => {
 
 async function userLog(logEmail, logPassword) {
 
-  const log = await logInCount(logEmail, logPassword)
-  if (log.userAuthentication.authentication == true) {
+  resultCloundLogin = await logInCount(logEmail, logPassword)
+  if (resultCloundLogin.userAuthentication.authentication == true) {
     logIn.value = true;
-    token.value = log.userAuthentication.token
+    token.value = resultCloundLogin.userAuthentication.token
+    reloadNote()
+    //console.log("userLor Result", resultCloundLogin)
     //console.log("token",token.value)
   }
 }
@@ -169,23 +174,66 @@ const viewNote = (id) => {
   enteredDescription.value = null
 }
 
+// async function reloadNote() {
+//   //Get data from database and reload notes  
+//   allNote.value = await readAllNote()
+//   //console.log("allNote", allNote.value)
+//   const size = allNote.value.length;
+
+//   for (let i = 0; i < size; i++) {
+//     const title = allNote.value[i].title;
+//     const description = { 'value': null }
+//     description.value = allNote.value[i].description;
+//     const jsonTeste = isJson(description.value)
+//     const id = allNote.value[i].id;
+
+
+//     if (jsonTeste) {
+//       description.value = JSON.parse(description.value)
+//       allNote.value[i].description = description.value
+//     }
+//     index.add(id, title);
+//     index.append(id, description)
+//   }
+
+//   if (size == 0) {
+//     noNote.value = true;
+//   }
+// }
+
 async function reloadNote() {
   //Get data from database and reload notes  
-  allNote.value = await readAllNote()
-  //console.log("allNote", allNote.value)
-  const size = allNote.value.length;
+  //console.log("resultCloundLogin reloadNote", resultCloundLogin)
+  allNote.value = await readAllNote();
+  allNoteClound.value = resultCloundLogin.userAuthentication.note;
+  console.log("allNoteClound reloadNote", allNoteClound.value)
 
+  //sync
+  const size = allNote.value.length;
+  const sizeClound = allNoteClound.value.results.length;
+  for(let i = 0; i < sizeClound; i++){
+    const noteIdClound = allNoteClound.value.results[i].noteId;
+    const lastUpdateclound = allNoteClound.value.results[i].lastUpdate
+    console.log("lastUpdateclound",lastUpdateclound)
+    for(let i = 0; i < size; i++){
+      const lastUpdateLocal = allNote.value.find(Element => Element.noteId == noteIdClound).lastUpdate
+      console.log("lastUpdateLocal",lastUpdateLocal)
+    }
+  }
+
+
+  
   for (let i = 0; i < size; i++) {
     const title = allNote.value[i].title;
-    const description = { 'value': null }
-    description.value = allNote.value[i].description;
-    const jsonTeste = isJson(description.value)
+    let description = null;
+    description = allNote.value[i].description;
+    const jsonTeste = isJson(description)
     const id = allNote.value[i].id;
 
 
     if (jsonTeste) {
-      description.value = JSON.parse(description.value)
-      allNote.value[i].description = description.value
+      description = JSON.parse(description)
+      allNote.value[i].description = description
     }
     index.add(id, title);
     index.append(id, description)
@@ -420,10 +468,10 @@ const editeDescriptionItem = (idx) => {
 
 //load the function when page is opened
 onMounted(() => {
-  reloadNote(),
+  //reloadNote(),
     window.addEventListener('resize', toggleScreen),
     toggleScreen();
-  getapi();
+    getapi();
   //callOtherDomain();
 });
 
