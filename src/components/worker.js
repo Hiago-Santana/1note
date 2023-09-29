@@ -78,7 +78,7 @@ export async function logInCount(logEmail, logPassword) {
   }
 }
 
-export async function insertNote(title, description, token) {
+export async function insertNote(title, description, token, id) {
   let result = null;
   let noteinsert;
 
@@ -99,24 +99,37 @@ export async function insertNote(title, description, token) {
 
     result = await response.json();
     console.log("Success:", result);
-  } catch (error) {
-    console.error("Error:", error);
-  }
 
-  if (result.res.noteinsert === true) {
-    const noteId = result.res.lastNote.results[0].noteId;
-    const usersId = result.res.lastNote.results[0].usersId;
-    const title = result.res.lastNote.results[0].title;
-    const description = result.res.lastNote.results[0].description;
-    const lastUpdate = result.res.lastNote.results[0].lastUpdate;
-    const deleted = result.res.lastNote.results[0].deleted;
-
-    addNote(noteId, usersId, title, description, lastUpdate, deleted)
+    if (result.res.noteinsert === true) {
+    
 
 
   }else{
     console.log("Note dont inserted")
   }
+  } catch (error) {
+    console.error("Error:", error);
+
+    const noteId =null;
+    const usersId = id;
+    const title = title;
+    const description = description;
+    const lastUpdate = new Date();
+    const deleted = null;
+
+    addNote(noteId, usersId, title, description, lastUpdate, deleted)
+
+  }
+
+  //excluir após testes
+  // const noteId =null;
+  //   const usersId = id;
+  //   const lastUpdate = new Date();
+  //   const deleted = null;
+
+  //   addNote(noteId, usersId, title, description, lastUpdate, deleted)
+
+ 
 }
 
 

@@ -53,7 +53,7 @@ const logPassword = ref("123456");
 const userLoged = ref(false);
 const token = ref(null);
 const allNoteClound = ref(null);
-let resultCloundLogin = "testeaaa";
+let resultCloundLogin = null;
 
 
 const sigUp = () => {
@@ -166,8 +166,8 @@ const viewNote = (id) => {
         console.log("descripionList", descriptionList.value)
         descriptionValue.value = descriptionList.value
       }
-      indexNote.value = { id: id, noteId: noteId, usersId:usersId, title: title, description: descriptionValue.value, lastUpdate:lastUpdate, deleted:deleted };
-      indexNoteCopy.value = { id: id, noteId: noteId, usersId:usersId, title: title, description: descriptionValue.value, lastUpdate:lastUpdate, deleted:deleted };
+      indexNote.value = { id: id, noteId: noteId, usersId: usersId, title: title, description: descriptionValue.value, lastUpdate: lastUpdate, deleted: deleted };
+      indexNoteCopy.value = { id: id, noteId: noteId, usersId: usersId, title: title, description: descriptionValue.value, lastUpdate: lastUpdate, deleted: deleted };
       toggleModal.value = true;
     }
   }
@@ -208,21 +208,104 @@ async function reloadNote() {
   allNoteClound.value = resultCloundLogin.userAuthentication.note;
   console.log("allNoteClound reloadNote", allNoteClound.value)
 
+  let noteIdClound;
+  let usersIdClound;
+  let titleClound;
+  let descriptionClound; 
+  let lastUpdateclound;
+  let deletedClound; 
+  
+  let noteIdLocal;
+  let usersIdLocal;
+  let titleLocal;
+  let descriptionLocal; 
+  let lastUpdateLocal;
+  let deletedLocal;
+
   //sync
   const size = allNote.value.length;
   const sizeClound = allNoteClound.value.results.length;
-  for(let i = 0; i < sizeClound; i++){
-    const noteIdClound = allNoteClound.value.results[i].noteId;
-    const lastUpdateclound = allNoteClound.value.results[i].lastUpdate
-    console.log("lastUpdateclound",lastUpdateclound)
-    for(let i = 0; i < size; i++){
-      const lastUpdateLocal = allNote.value.find(Element => Element.noteId == noteIdClound).lastUpdate
-      console.log("lastUpdateLocal",lastUpdateLocal)
+  for (let i = 0; i < sizeClound; i++) {
+    noteIdClound = allNoteClound.value.results[i].noteId;
+    usersIdClound = allNoteClound.value.results[i].usersId;
+    titleClound = allNoteClound.value.results[i].title;
+    descriptionClound = allNoteClound.value.results[i].description;
+    lastUpdateclound = allNoteClound.value.results[i].lastUpdate
+    deletedClound = allNoteClound.value.results[i].deleted;
+
+    console.log("lastUpdateclound", lastUpdateclound)
+    for (let i = 0; i < size; i++) {
+
+      try {
+        lastUpdateLocal = allNote.value.find(Element => Element.noteId == noteIdClound).lastUpdate
+        
+        if (lastUpdateclound > lastUpdateLocal) {
+          noteIdLocal = allNote.value.find(Element => Element.noteId == noteIdClound).id
+          await setNote(noteIdLocal, noteIdClound, usersIdClound, titleClound, descriptionClound, lastUpdateclound, deletedClound)
+          allNote.value = await readAllNote();
+        }
+        if(lastUpdateclound < lastUpdateLocal) {
+          //await insertNote(title, description, token, id)
+          //avaliar se é necessário criar ele aqui
+        }
+      } catch (error) {
+
+        await addNote(noteIdClound, usersIdClound, titleClound, descriptionClound, lastUpdateclound, deletedClound)
+        allNote.value = await readAllNote();
+        break
+
+      }
+
+      //const lastUpdateLocal = allNote.value.find(Element => Element.noteId == noteIdClound).lastUpdate
+
+      console.log("lastUpdateLocal", lastUpdateLocal)
+
     }
   }
 
 
-  
+  //sync invertido
+  // for (let i = 0; i < size; i++) {
+  //   noteIdLocal = allNote.value[i].Id;
+  //   noteIdClound = allNote.value[i].noteId
+  //   usersIdLocal = allNote.value[i].usersId;
+  //   titleLocal = allNote.value.title;
+  //   descriptionLocal = allNote.value[i].description;
+  //   lastUpdateLocal = allNote.value[i].lastUpdate
+  //   deletedLocal = allNote.value[i].deleted;
+
+  //   console.log("lastUpdateclound", lastUpdateclound)
+  //   for (let i = 0; i < sizeClound; i++) {
+
+  //     try {
+  //       lastUpdateclound = allNoteClound.value.results.find(Element => Element.noteId == noteIdLocal).lastUpdate
+        
+  //       if (lastUpdateLocal > lastUpdateclound) {
+  //         //noteIdLocal = allNote.value.find(Element => Element.noteId == noteIdClound).id
+  //         await setNoteClound( noteIdLocal, noteIdClound, usersIdLocal, titleLocal, descriptionLocal, lastUpdateLocal, deletedLocal, token.value)
+  //         allNote.value = await readAllNote();
+  //       }
+  //       if(lastUpdateclound < lastUpdateLocal) {
+  //         //await insertNote(title, description, token, id)
+  //         //avaliar se é necessário criar ele aqui
+  //       }
+  //     } catch (error) {
+
+  //       await addNote(noteIdClound, usersIdClound, titleClound, descriptionClound, lastUpdateclound, deletedClound)
+  //       allNote.value = await readAllNote();
+  //       break
+
+  //     }
+
+  //     //const lastUpdateLocal = allNote.value.find(Element => Element.noteId == noteIdClound).lastUpdate
+
+  //     console.log("lastUpdateLocal", lastUpdateLocal)
+
+  //   }
+  // }
+
+
+
   for (let i = 0; i < size; i++) {
     const title = allNote.value[i].title;
     let description = null;
@@ -270,7 +353,7 @@ async function addTitleDescription(index) {
   }
 
   if (title != null || description.value != null) {
-    await insertNote(title, description.value, token.value)
+    await insertNote(title, description.value, token.value, resultCloundLogin.userAuthentication.authentication)
     //await addNote(title, description.value);
     const note = await readAllNote();
     allNote.value = note;
@@ -370,67 +453,67 @@ async function removeNote() {
 //   enteredDescription.value = null;
 // }
 
-async function editeNote(trash, del){
+async function editeNote(trash, del) {
   //Edite note
-  if(del == "deleted"){
-  const id = indexNote.value.id;
-  const noteId = indexNote.value.noteId
-  const usersId = indexNote.value.usersId
-  const title = indexNote.value.title
-  const description = indexNote.value.description
-  const lastUpdate = indexNote.value.lastUpdate
-  const tokenUser = token.value
-    console.log("description editeNote = Deleted",description)
-  console.log("noteId removeNote", noteId)
-  await setNoteClound(id, noteId, usersId, title, description, lastUpdate, del, tokenUser)
-  // deleteNote(id);
-  index.remove(id);
-  await reloadNote();
-  valueSearchCopy.value = null;
-  searchNote();
-  toggleModal.value = false;
-  }else{
+  if (del == "deleted") {
+    const id = indexNote.value.id;
+    const noteId = indexNote.value.noteId
+    const usersId = indexNote.value.usersId
+    const title = indexNote.value.title
+    const description = indexNote.value.description
+    const lastUpdate = indexNote.value.lastUpdate
+    const tokenUser = token.value
+    console.log("description editeNote = Deleted", description)
+    console.log("noteId removeNote", noteId)
+    await setNoteClound(id, noteId, usersId, title, description, lastUpdate, del, tokenUser)
+    // deleteNote(id);
+    index.remove(id);
+    await reloadNote();
+    valueSearchCopy.value = null;
+    searchNote();
+    toggleModal.value = false;
+  } else {
 
-  
-  toggleModal.value = false;
-  console.log("trash", trash)
-  if (trash != null) {
+
+    toggleModal.value = false;
     console.log("trash", trash)
-    console.log("indexNote.value editNote 1", indexNote.value)
-    indexNote.value.description.splice(trash, 1)
-    console.log("indexNote.value editNote 2", indexNote.value)
-    toggleModal.value = true;
-  }
+    if (trash != null) {
+      console.log("trash", trash)
+      console.log("indexNote.value editNote 1", indexNote.value)
+      indexNote.value.description.splice(trash, 1)
+      console.log("indexNote.value editNote 2", indexNote.value)
+      toggleModal.value = true;
+    }
 
-  if (enteredDescription.value != null) {
-    console.log("enteredDescription.value", enteredDescription.value)
-    const checkBox = checkedBox.value;
-    indexNote.value.description.push({ checkBox: checkBox, description: enteredDescription.value });
+    if (enteredDescription.value != null) {
+      console.log("enteredDescription.value", enteredDescription.value)
+      const checkBox = checkedBox.value;
+      indexNote.value.description.push({ checkBox: checkBox, description: enteredDescription.value });
+      enteredDescription.value = null;
+      toggleModal.value = true;
+    }
+
+    const noteId = indexNote.value.noteId;
+    const usersId = indexNote.value.usersId;
+    const lastUpdate = indexNote.value.lastUpdate;
+    const deleted = indexNote.value.deleted;
+    const id = indexNote.value.id;
+    const title = indexNote.value.title;
+    let description = indexNote.value.description;
+    const jsonTeste = { 'value': isJson(description) };
+    console.log("editeNote CheckBox", indexNote.value.description)
+    const tokenUser = token.value
+    console.log("description editeNote", description)
+    if (!jsonTeste.value) {
+      description = JSON.stringify(description)
+    }
+
+    checkedBox.value = false;
+    await setNoteClound(id, noteId, usersId, title, description, lastUpdate, deleted, tokenUser);
+    await reloadNote();
+    searchNote();
     enteredDescription.value = null;
-    toggleModal.value = true;
   }
-
-  const noteId = indexNote.value.noteId;
-  const usersId = indexNote.value.usersId;
-  const lastUpdate = indexNote.value.lastUpdate;
-  const deleted = indexNote.value.deleted;
-  const id = indexNote.value.id;
-  const title = indexNote.value.title;
-  let description =  indexNote.value.description;
-  const jsonTeste = { 'value': isJson(description) };
-  console.log("editeNote CheckBox", indexNote.value.description)
-  const tokenUser = token.value
-  console.log("description editeNote",description)
-  if (!jsonTeste.value) {
-    description = JSON.stringify(description)
-  }
-
-  checkedBox.value = false;
-  await setNoteClound(id, noteId, usersId, title, description, lastUpdate, deleted, tokenUser);
-  await reloadNote();
-  searchNote();
-  enteredDescription.value = null;
-}
 }
 
 const addDescriptionList = () => {
@@ -469,9 +552,9 @@ const editeDescriptionItem = (idx) => {
 //load the function when page is opened
 onMounted(() => {
   //reloadNote(),
-    window.addEventListener('resize', toggleScreen),
+  window.addEventListener('resize', toggleScreen),
     toggleScreen();
-    getapi();
+  getapi();
   //callOtherDomain();
 });
 
@@ -649,7 +732,7 @@ onMounted(() => {
             <button class="place-self-start"
               @click="editeNote(), toggleModal = false, addChecKBox = false"><font-awesome-icon
                 icon="fa-solid fa-arrow-left" /></button>
-            <button @click="toggleModal = false, editeNote(null,'deleted')" class="place-self-end"><font-awesome-icon
+            <button @click="toggleModal = false, editeNote(null, 'deleted')" class="place-self-end"><font-awesome-icon
                 icon="fa-solid fa-trash" style="color: #707070;" />
             </button>
           </div>
@@ -763,8 +846,8 @@ onMounted(() => {
                       <div class="grid grid-cols-2">
                         <button class="place-self-start" @click="editeNote(), toggleModal = false"><font-awesome-icon
                             icon="fa-solid fa-arrow-left" /></button>
-                        <button @click="toggleModal = false, editeNote(null,'deleted')" class="place-self-end"><font-awesome-icon
-                            icon="fa-solid fa-trash" style="color: #707070;" />
+                        <button @click="toggleModal = false, editeNote(null, 'deleted')"
+                          class="place-self-end"><font-awesome-icon icon="fa-solid fa-trash" style="color: #707070;" />
                         </button>
                       </div>
                       <div v-if="Array.isArray(indexNote.description)">
