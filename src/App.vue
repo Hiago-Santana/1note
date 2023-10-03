@@ -278,6 +278,9 @@ async function reloadNote() {
 
   for (let i = 0; i < sizeLocal; i++) {
     try {
+      if(i == 0){
+        
+      }
       noteNotInsertdClound = allNote.value.find(Element => Element.noteId == null)
       if (noteNotInsertdClound != undefined) {
 
@@ -305,17 +308,14 @@ async function reloadNote() {
           const title = allNote.value[i].title;
           const description = allNote.value[i].description;
           const deleted = allNote.value[i].deleted;
-          const setNoteClound = await setNoteClound(idNoteLocal, noteIdLocal, resultCloundLogin.userAuthentication.idUser, title, description, deleted, token.value)
+          const updateNoteClound = await setNoteClound(idNoteLocal, noteIdLocal, resultCloundLogin.userAuthentication.idUser, title, description, deleted, token.value)
 
-          const lastUpdateSetClound = setNoteClound.res.lastNote.results[0].lastUpdate
-          const deletedSetClound = setNoteClound.res.lastNote.results[0].deleted
+          const lastUpdateSetClound = updateNoteClound.res.lastNote.results[0].lastUpdate
+          const deletedSetClound = updateNoteClound.res.lastNote.results[0].deleted
           await setNote(idNoteLocal, noteIdLocal, resultCloundLogin.userAuthentication.idUser, title, description, lastUpdateSetClound, deletedSetClound);
           allNote.value = await readAllNote();
 
         }
-
-
-
 
         //break
       }
