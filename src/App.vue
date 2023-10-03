@@ -266,9 +266,19 @@ async function reloadNote() {
 
       }
     } else if (sizeClound > 0 && sizeLocal == 0) {
-      await addNote(noteIdClound, usersIdClound, titleClound, descriptionClound, lastUpdateclound, deletedClound)
+      for (let i = 0; i < sizeClound; i++) {
+        noteIdClound = allNoteClound.value.results[i].noteId;
+        usersIdClound = allNoteClound.value.results[i].usersId;
+        titleClound = allNoteClound.value.results[i].title;
+        descriptionClound = allNoteClound.value.results[i].description;
+        lastUpdateclound = allNoteClound.value.results[i].lastUpdate
+        deletedClound = allNoteClound.value.results[i].deleted;
+        await addNote(noteIdClound, usersIdClound, titleClound, descriptionClound, lastUpdateclound, deletedClound)
+      }
+
       allNote.value = await readAllNote();
       sizeLocal = allNote.value.length;
+      break
     }
 
   }
@@ -278,8 +288,8 @@ async function reloadNote() {
 
   for (let i = 0; i < sizeLocal; i++) {
     try {
-      if(i == 0){
-        
+      if (i == 0) {
+
       }
       noteNotInsertdClound = allNote.value.find(Element => Element.noteId == null)
       if (noteNotInsertdClound != undefined) {
@@ -604,16 +614,18 @@ async function editeNote(trash, del) {
     console.log("description editeNote = Deleted", description)
     console.log("noteId removeNote", noteId)
 
-    try{const noteSeted = await setNoteClound(id, noteId, usersId, title, description, del, tokenUser);
-    const deleted = noteSeted.res.lastNote.results[0].deleted;
-    const update = noteSeted.res.lastNote.results[0].lastUpdate;
-    await setNote(id, noteId, usersId, title, description, update, deleted);}catch (error){
+    try {
+      const noteSeted = await setNoteClound(id, noteId, usersId, title, description, del, tokenUser);
+      const deleted = noteSeted.res.lastNote.results[0].deleted;
+      const update = noteSeted.res.lastNote.results[0].lastUpdate;
+      await setNote(id, noteId, usersId, title, description, update, deleted);
+    } catch (error) {
       const dateNow = new Date();
       const lastUpdate = formatDate(dateNow, "yyyy-mmm-dd hh:mm:ss");
       await setNote(id, noteId, usersId, title, description, lastUpdate, deleted)
 
     }
-    
+
 
 
     // deleteNote(id);
