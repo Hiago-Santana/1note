@@ -54,6 +54,7 @@ const userLoged = ref(false);
 const token = ref(null);
 const allNoteClound = ref(null);
 let resultCloundLogin = null;
+let resultCloundInsertNote = null;
 
 
 const sigUp = () => {
@@ -211,19 +212,21 @@ async function reloadNote() {
   let noteIdClound;
   let usersIdClound;
   let titleClound;
-  let descriptionClound; 
+  let descriptionClound;
   let lastUpdateclound;
-  let deletedClound; 
-  
+  let deletedClound;
+
   let noteIdLocal;
   let usersIdLocal;
   let titleLocal;
-  let descriptionLocal; 
+  let descriptionLocal;
   let lastUpdateLocal;
   let deletedLocal;
 
+  let noteNotInsertdClound;
+
   //sync
-  const size = allNote.value.length;
+  const sizeLocal = allNote.value.length;
   const sizeClound = allNoteClound.value.results.length;
   for (let i = 0; i < sizeClound; i++) {
     noteIdClound = allNoteClound.value.results[i].noteId;
@@ -233,65 +236,125 @@ async function reloadNote() {
     lastUpdateclound = allNoteClound.value.results[i].lastUpdate
     deletedClound = allNoteClound.value.results[i].deleted;
 
-    console.log("lastUpdateclound", lastUpdateclound)
-    for (let i = 0; i < size; i++) {
+    //console.log("lastUpdateclound", lastUpdateclound)
+    if (sizeClound > 0 && sizeLocal > 0) {
+      for (let i = 0; i < sizeLocal; i++) {
 
-      try {
-        lastUpdateLocal = allNote.value.find(Element => Element.noteId == noteIdClound).lastUpdate
-        
-        if (lastUpdateclound > lastUpdateLocal) {
-          noteIdLocal = allNote.value.find(Element => Element.noteId == noteIdClound).id
-          await setNote(noteIdLocal, noteIdClound, usersIdClound, titleClound, descriptionClound, lastUpdateclound, deletedClound)
+        try {
+          lastUpdateLocal = allNote.value.find(Element => Element.noteId == noteIdClound).lastUpdate
+
+          if (lastUpdateclound > lastUpdateLocal) {
+            noteIdLocal = allNote.value.find(Element => Element.noteId == noteIdClound).id
+            await setNote(noteIdLocal, noteIdClound, usersIdClound, titleClound, descriptionClound, lastUpdateclound, deletedClound)
+            allNote.value = await readAllNote();
+          }
+          if (lastUpdateclound < lastUpdateLocal) {
+            //await insertNote(title, description, token, id)
+            //avaliar se é necessário criar ele aqui
+          }
+        } catch (error) {
+
+          await addNote(noteIdClound, usersIdClound, titleClound, descriptionClound, lastUpdateclound, deletedClound)
           allNote.value = await readAllNote();
-        }
-        if(lastUpdateclound < lastUpdateLocal) {
-          //await insertNote(title, description, token, id)
-          //avaliar se é necessário criar ele aqui
-        }
-      } catch (error) {
+          break
 
-        await addNote(noteIdClound, usersIdClound, titleClound, descriptionClound, lastUpdateclound, deletedClound)
-        allNote.value = await readAllNote();
-        break
+        }
+
+        //const lastUpdateLocal = allNote.value.find(Element => Element.noteId == noteIdClound).lastUpdate
+
+        //console.log("lastUpdateLocal", lastUpdateLocal)
 
       }
-
-      //const lastUpdateLocal = allNote.value.find(Element => Element.noteId == noteIdClound).lastUpdate
-
-      console.log("lastUpdateLocal", lastUpdateLocal)
-
+    } else if (sizeClound > 0 && sizeLocal == 0) {
+      await addNote(noteIdClound, usersIdClound, titleClound, descriptionClound, lastUpdateclound, deletedClound)
+      allNote.value = await readAllNote();
+      sizeLocal = allNote.value.length;
     }
+
   }
 
 
   //sync invertido
-  // for (let i = 0; i < size; i++) {
-  //   noteIdLocal = allNote.value[i].Id;
-  //   noteIdClound = allNote.value[i].noteId
+
+  for (let i = 0; i < sizeLocal; i++) {
+    try {
+      noteNotInsertdClound = allNote.value.find(Element => Element.noteId == null)
+      if (noteNotInsertdClound != undefined) {
+
+        const idNoteLocal = noteNotInsertdClound.id
+        const title = noteNotInsertdClound.title
+        const description = noteNotInsertdClound.description
+        const notInsered = await insertNote(title, description, token.value, resultCloundLogin.userAuthentication.idUser)
+
+        const idNotInserted = notInsered.res.lastNote.results[0].noteId
+        const lastUpdateInsertedNote = notInsered.res.lastNote.results[0].lastUpdate
+        const deletedInsertNote = notInsered.res.lastNote.results[0].deleted
+        console.log("idNotInserted", idNotInserted)
+        setNote(idNoteLocal, idNotInserted, resultCloundLogin.userAuthentication.idUser, title, description, lastUpdateInsertedNote, deletedInsertNote)
+
+        allNote.value = await readAllNote();
+      } else {
+
+        noteIdLocal = allNote.value[i].noteId;
+        lastUpdateLocal = allNote.value[i].lastUpdate;
+        lastUpdateclound = allNoteClound.value.results.find(Element => Element.noteId == noteIdLocal).lastUpdate
+
+        if (lastUpdateLocal > lastUpdateclound) {
+
+          const idNoteLocal = allNote.value[i].id;
+          const title = allNote.value[i].title;
+          const description = allNote.value[i].description;
+          const deleted = allNote.value[i].deleted;
+          const setNoteClound = await setNoteClound(idNoteLocal, noteIdLocal, resultCloundLogin.userAuthentication.idUser, title, description, deleted, token.value)
+
+          const lastUpdateSetClound = setNoteClound.res.lastNote.results[0].lastUpdate
+          const deletedSetClound = setNoteClound.res.lastNote.results[0].deleted
+          await setNote(idNoteLocal, noteIdLocal, resultCloundLogin.userAuthentication.idUser, title, description, lastUpdateSetClound, deletedSetClound);
+          allNote.value = await readAllNote();
+
+        }
+
+
+
+
+        //break
+      }
+    } catch (error) { }
+  }
+
+  // for (let i = 0; i < sizeLocal; i++) {
+  //   noteIdLocal = allNote.value[i].noteId;
   //   usersIdLocal = allNote.value[i].usersId;
-  //   titleLocal = allNote.value.title;
+  //   titleLocal = allNote.value[i].title;
   //   descriptionLocal = allNote.value[i].description;
   //   lastUpdateLocal = allNote.value[i].lastUpdate
   //   deletedLocal = allNote.value[i].deleted;
 
-  //   console.log("lastUpdateclound", lastUpdateclound)
+
+
+
+  //   //console.log("lastUpdateclound", lastUpdateclound)
   //   for (let i = 0; i < sizeClound; i++) {
 
   //     try {
-  //       lastUpdateclound = allNoteClound.value.results.find(Element => Element.noteId == noteIdLocal).lastUpdate
-        
-  //       if (lastUpdateLocal > lastUpdateclound) {
-  //         //noteIdLocal = allNote.value.find(Element => Element.noteId == noteIdClound).id
-  //         await setNoteClound( noteIdLocal, noteIdClound, usersIdLocal, titleLocal, descriptionLocal, lastUpdateLocal, deletedLocal, token.value)
+  //       lastUpdateclound = allNoteClound.value.find(Element => Element.noteId == noteIdLocal).lastUpdate
+
+  //       if (lastUpdateclound > lastUpdateLocal) {
+  //         noteIdLocal = allNote.value.find(Element => Element.noteId == noteIdClound).id
+  //         await setNote(noteIdLocal, noteIdClound, usersIdClound, titleClound, descriptionClound, lastUpdateclound, deletedClound)
   //         allNote.value = await readAllNote();
   //       }
-  //       if(lastUpdateclound < lastUpdateLocal) {
+  //       if (lastUpdateclound < lastUpdateLocal) {
   //         //await insertNote(title, description, token, id)
   //         //avaliar se é necessário criar ele aqui
   //       }
   //     } catch (error) {
 
-  //       await addNote(noteIdClound, usersIdClound, titleClound, descriptionClound, lastUpdateclound, deletedClound)
+  //       //await addNote(noteIdClound, usersIdClound, titleClound, descriptionClound, lastUpdateclound, deletedClound)
+  //       const noteInsert = await insertNote(titleLocal, descriptionLocal, token.value, usersIdLocal)
+  //       const idNoteCloundInsert = noteInsert.res.lastNote.results[0].noteId
+  //       const lastUpdateCloundInsert = noteInsert.res.lastNote.results[0].lastUpdate
+  //       await setNote(noteIdLocal, idNoteCloundInsert, usersIdLocal, titleLocal, descriptionLocal, lastUpdateCloundInsert, deletedLocal)
   //       allNote.value = await readAllNote();
   //       break
 
@@ -299,14 +362,14 @@ async function reloadNote() {
 
   //     //const lastUpdateLocal = allNote.value.find(Element => Element.noteId == noteIdClound).lastUpdate
 
-  //     console.log("lastUpdateLocal", lastUpdateLocal)
+  //     //console.log("lastUpdateLocal", lastUpdateLocal)
 
   //   }
   // }
 
 
 
-  for (let i = 0; i < size; i++) {
+  for (let i = 0; i < sizeLocal; i++) {
     const title = allNote.value[i].title;
     let description = null;
     description = allNote.value[i].description;
@@ -322,7 +385,7 @@ async function reloadNote() {
     index.append(id, description)
   }
 
-  if (size == 0) {
+  if (sizeLocal == 0) {
     noNote.value = true;
   }
 }
@@ -336,6 +399,41 @@ function isJson(str) {
   }
   return true;
 }
+
+// async function addTitleDescription(index) {
+//   //Add title and description to database
+//   const title = enteredTitle.value;
+//   const description = { 'value': null };
+
+//   if (descriptionList.value == true) {
+//     if (enteredDescription.value != null && enteredDescription.value != "") {
+//       console.log("enteredListDescription.value", enteredListDescription.value)
+//       enteredListDescription.value.push({ checkBox: checkedBox.value, description: enteredDescription.value });
+//     }
+//     description.value = JSON.stringify(enteredListDescription.value)
+//   } else {
+//     description.value = enteredDescription.value;
+//   }
+
+//   if (title != null || description.value != null) {
+//     await insertNote(title, description.value, token.value, resultCloundLogin.userAuthentication.idUser)
+//     //await addNote(title, description.value);
+//     const note = await readAllNote();
+//     allNote.value = note;
+//     enteredTitle.value = null;
+//     enteredDescription.value = null;
+//     toggleTitle.value = false;
+//     noNote.value = false;
+//     reloadNote();
+//   } else {
+//     if (allNote.value == "") {
+//       noNote.value = true
+//     }
+//   }
+//   buttonEnterNote.value = false;
+//   enteredListDescription.value = []
+
+// }
 
 async function addTitleDescription(index) {
   //Add title and description to database
@@ -353,7 +451,33 @@ async function addTitleDescription(index) {
   }
 
   if (title != null || description.value != null) {
-    await insertNote(title, description.value, token.value, resultCloundLogin.userAuthentication.authentication)
+    try {
+      resultCloundInsertNote = await insertNote(title, description.value, token.value, resultCloundLogin.userAuthentication.idUser)
+      console.log("resultCloundInsetNote", resultCloundInsertNote.res.noteinsert)
+      if (resultCloundInsertNote.res.noteinsert === true) {
+        const noteId = resultCloundInsertNote.res.lastNote.results[0].noteId;
+        const usersId = resultCloundInsertNote.res.lastNote.results[0].usersId;
+        const title = resultCloundInsertNote.res.lastNote.results[0].title;
+        const description = resultCloundInsertNote.res.lastNote.results[0].description;
+        const lastUpdate = resultCloundInsertNote.res.lastNote.results[0].lastUpdate;
+        const deleted = resultCloundInsertNote.res.lastNote.results[0].deleted;
+        addNote(noteId, usersId, title, description, lastUpdate, deleted);
+        console.log("addNote indexedDB");
+        //return result;
+      }
+    } catch (error) {
+
+      const noteId = null;
+      const usersId = resultCloundLogin.userAuthentication.idUser;
+      //const title = titenteredTitle.valuele;
+      //const description = description.value;
+      const dateNow = new Date();
+      const lastUpdate = formatDate(dateNow, "yyyy-mmm-dd hh:mm:ss");
+      const deleted = null;
+
+      addNote(noteId, usersId, title, description.value, lastUpdate, deleted);
+    }
+
     //await addNote(title, description.value);
     const note = await readAllNote();
     allNote.value = note;
@@ -370,6 +494,20 @@ async function addTitleDescription(index) {
   buttonEnterNote.value = false;
   enteredListDescription.value = []
 
+}
+
+function formatDate(date, format) {
+  const map = {
+    mmm: ("00" + (date.getMonth() + 1)).slice(-2),
+    dd: ("00" + date.getDate()).slice(-2),
+    //yy: date.getFullYear().toString().slice(-2),
+    yyyy: date.getFullYear(),
+    hh: date.getUTCHours(),
+    mm: date.getMinutes(),
+    ss: date.getSeconds()
+  }
+
+  return format.replace(/mmm|dd|yyyy|hh|mm|ss/gi, matched => map[matched])
 }
 
 // async function removeNote() {
@@ -465,7 +603,19 @@ async function editeNote(trash, del) {
     const tokenUser = token.value
     console.log("description editeNote = Deleted", description)
     console.log("noteId removeNote", noteId)
-    await setNoteClound(id, noteId, usersId, title, description, lastUpdate, del, tokenUser)
+
+    try{const noteSeted = await setNoteClound(id, noteId, usersId, title, description, del, tokenUser);
+    const deleted = noteSeted.res.lastNote.results[0].deleted;
+    const update = noteSeted.res.lastNote.results[0].lastUpdate;
+    await setNote(id, noteId, usersId, title, description, update, deleted);}catch (error){
+      const dateNow = new Date();
+      const lastUpdate = formatDate(dateNow, "yyyy-mmm-dd hh:mm:ss");
+      await setNote(id, noteId, usersId, title, description, lastUpdate, deleted)
+
+    }
+    
+
+
     // deleteNote(id);
     index.remove(id);
     await reloadNote();
@@ -509,7 +659,20 @@ async function editeNote(trash, del) {
     }
 
     checkedBox.value = false;
-    await setNoteClound(id, noteId, usersId, title, description, lastUpdate, deleted, tokenUser);
+
+    try {
+      const noteSeted = await setNoteClound(id, noteId, usersId, title, description, del, tokenUser);
+      console.log("noteSeted", noteSeted)
+      const update = noteSeted.res.lastNote.results[0].lastUpdate;
+      await setNote(id, noteId, usersId, title, description, update, deleted);
+    } catch (error) {
+      const dateNow = new Date();
+      const lastUpdate = formatDate(dateNow, "yyyy-mmm-dd hh:mm:ss");
+      await setNote(id, noteId, usersId, title, description, lastUpdate, deleted)
+    }
+
+
+
     await reloadNote();
     searchNote();
     enteredDescription.value = null;

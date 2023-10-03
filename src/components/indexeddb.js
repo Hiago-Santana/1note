@@ -41,7 +41,7 @@ export async function addNote(noteId, usersId, title, description, lastUpdate, d
 export async function readAllNote() {
   // let allNote = [];
   const db = await openDataBase();
-  const allNoteUser = await db.getAll("note");
+  let allNoteUser = await db.getAll("note");
   const deleted = !null
   let allNote = [];
   const size = allNoteUser.length

@@ -78,6 +78,64 @@ export async function logInCount(logEmail, logPassword) {
   }
 }
 
+// export async function insertNote(title, description, token, id) {
+//   let result = null;
+//   let noteinsert;
+
+//   try {
+//     const data = {
+//       type: "insertNote",
+//       title: title,
+//       description: description,
+//       token: token,
+//     };
+//     const response = await fetch("http://127.0.0.1:8787/", {
+//       method: "POST",
+//       headers: {
+//         "content-type": "application/json",
+//       },
+//       body: JSON.stringify(data),
+//     });
+
+//     result = await response.json();
+//     console.log("Success:", result);
+
+//     if (result.res.noteinsert === true) {
+//       console.log("result Worker", result.res.lastNote.results[0].title);
+//       const noteId = result.res.lastNote.results[0].noteId;
+//       const usersId = id;
+//       const title = result.res.lastNote.results[0].title;
+//       const description = result.res.lastNote.results[0].description;
+//       const lastUpdate = result.res.lastNote.results[0].lastUpdate;
+//       const deleted = result.res.lastNote.results[0].deleted;
+//       addNote(noteId, usersId, title, description, lastUpdate, deleted);
+//       console.log("addNote Worker");
+//       return result;
+//     } else {
+//       console.log("Note dont inserted");
+//     }
+//   } catch (error) {
+//     console.error("Error:", error);
+
+//     const noteId = null;
+//     const usersId = id;
+//     const title = title;
+//     const description = description;
+//     const lastUpdate = new Date();
+//     const deleted = null;
+
+//     addNote(noteId, usersId, title, description, lastUpdate, deleted);
+//   }
+
+//   //excluir após testes
+//   // const noteId =null;
+//   //   const usersId = id;
+//   //   const lastUpdate = new Date();
+//   //   const deleted = null;
+
+//   //   addNote(noteId, usersId, title, description, lastUpdate, deleted)
+// }
+
 export async function insertNote(title, description, token, id) {
   let result = null;
   let noteinsert;
@@ -99,26 +157,12 @@ export async function insertNote(title, description, token, id) {
 
     result = await response.json();
     console.log("Success:", result);
-
-    if (result.res.noteinsert === true) {
-    
-
-
-  }else{
-    console.log("Note dont inserted")
-  }
+    return result;
+   
   } catch (error) {
     console.error("Error:", error);
 
-    const noteId =null;
-    const usersId = id;
-    const title = title;
-    const description = description;
-    const lastUpdate = new Date();
-    const deleted = null;
-
-    addNote(noteId, usersId, title, description, lastUpdate, deleted)
-
+    
   }
 
   //excluir após testes
@@ -128,15 +172,20 @@ export async function insertNote(title, description, token, id) {
   //   const deleted = null;
 
   //   addNote(noteId, usersId, title, description, lastUpdate, deleted)
-
- 
 }
 
-
-export async function deleteNoteClound(id, noteId, usersId, title, description, lastUpdate, token) {
+export async function deleteNoteClound(
+  id,
+  noteId,
+  usersId,
+  title,
+  description,
+  lastUpdate,
+  token
+) {
   let result = null;
   let noteinsert;
-  console.log("deleteNoteClound",noteId)
+  console.log("deleteNoteClound", noteId);
 
   try {
     const data = {
@@ -160,29 +209,36 @@ export async function deleteNoteClound(id, noteId, usersId, title, description, 
 
   if (result.res.noteDeleted === true) {
     const dateDeleted = result.res.lastNote.results[0].deleted;
-    console.log("dateDeleted", dateDeleted)
+    console.log("dateDeleted", dateDeleted);
 
     //addNote(noteId, usersId, title, description, lastUpdate, deleted)
-    setNote(id, noteId, usersId, title, description, lastUpdate, dateDeleted)
-
-  }else{
-    console.log("Note dont deleted")
+    setNote(id, noteId, usersId, title, description, lastUpdate, dateDeleted);
+  } else {
+    console.log("Note dont deleted");
   }
 }
 
-export async function setNoteClound(id, noteId, usersId, title, description, lastUpdate, deleted, token) {
+export async function setNoteClound(
+  id,
+  noteId,
+  usersId,
+  title,
+  description,
+  deleted,
+  token
+) {
   let result = null;
   let noteinsert;
-  console.log("description Set Note", description)
-  console.log("deleteNoteClound",noteId)
+  console.log("description Set Note", description);
+  console.log("deleteNoteClound", noteId);
 
   try {
     const data = {
       type: "setNote",
-      noteId: noteId, 
+      noteId: noteId,
       title: title,
       description: description,
-      deleted: deleted,      
+      deleted: deleted,
       token: token,
     };
     const response = await fetch("http://127.0.0.1:8787/", {
@@ -195,19 +251,22 @@ export async function setNoteClound(id, noteId, usersId, title, description, las
 
     result = await response.json();
     console.log("Success:", result);
+    return result
   } catch (error) {
-    console.error("Error:", error);
+    console.log("Error:", error);
   }
 
-  if (result.res.noteChanged === "deleted" || result.res.noteChanged === "update") {
-    const dateDeleted = result.res.lastNote.results[0].deleted;
-    const update = result.res.lastNote.results[0].lastUpdate;
-    console.log("dateDeleted", dateDeleted)
+  // if (
+  //   result.res.noteChanged === "deleted" ||
+  //   result.res.noteChanged === "update"
+  // ) {
+  //   const dateDeleted = result.res.lastNote.results[0].deleted;
+  //   const update = result.res.lastNote.results[0].lastUpdate;
+  //   console.log("dateDeleted", dateDeleted);
 
-    //addNote(noteId, usersId, title, description, lastUpdate, deleted)
-    setNote(id, noteId, usersId, title, description, update, dateDeleted)
-
-  }else{
-    console.log("Note dont deleted")
-  }
+  //   //addNote(noteId, usersId, title, description, lastUpdate, deleted)
+  //   //setNote(id, noteId, usersId, title, description, update, dateDeleted);
+  // } else {
+  //   console.log("Note dont deleted");
+  // }
 }
