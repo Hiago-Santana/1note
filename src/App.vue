@@ -876,6 +876,7 @@ onMounted(() => {
             <div
               class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)]  p-2 rounded-md mt-2 content-start break-words font-semibold hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] dark:bg-zinc-900 dark:shadow-none dark:border-2 dark:border-gray-700"
               v-for="entered in allNote" :key="entered" @click="viewNote(entered.id), toggleTitle = false">
+              
               <div v-if="Array.isArray(entered.description)">
                 {{ entered.title }}
                 <div v-for="entereds in entered.description" :key="entereds" class="grid grid-cols-12">

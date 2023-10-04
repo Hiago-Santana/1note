@@ -1,7 +1,8 @@
-// // api url
-// // const api_url =	"https://frosty-recipe-fd6f.hiago-douglas.workers.dev";
-// const api_url =	"http://127.0.0.1:8787";
 import { readCloundDataBase, addNote, setNote } from "./indexeddb";
+
+// // const api_url =	"https://frosty-recipe-fd6f.hiago-douglas.workers.dev";
+const api_url =	"http://127.0.0.1:8787/";
+
 
 export async function getapi() {
   const myHeaders = new Headers();
@@ -12,7 +13,7 @@ export async function getapi() {
     headers: myHeaders,
   };
 
-  const teste = fetch("http://127.0.0.1:8787/", myInit)
+  const teste = fetch(api_url, myInit)
     .then((response) => response.json())
     .then((json) => console.log(json))
     .catch((error) => {
@@ -28,7 +29,7 @@ export async function createAcount(type, cAName, cAEmail, cAPassword) {
       cAEmail: cAEmail,
       cAPassword: cAPassword,
     };
-    const response = await fetch("http://127.0.0.1:8787/", {
+    const response = await fetch(api_url, {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -52,7 +53,7 @@ export async function logInCount(logEmail, logPassword) {
       logEmail: logEmail,
       logPassword: logPassword,
     };
-    const response = await fetch("http://127.0.0.1:8787/", {
+    const response = await fetch(api_url, {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -78,63 +79,6 @@ export async function logInCount(logEmail, logPassword) {
   }
 }
 
-// export async function insertNote(title, description, token, id) {
-//   let result = null;
-//   let noteinsert;
-
-//   try {
-//     const data = {
-//       type: "insertNote",
-//       title: title,
-//       description: description,
-//       token: token,
-//     };
-//     const response = await fetch("http://127.0.0.1:8787/", {
-//       method: "POST",
-//       headers: {
-//         "content-type": "application/json",
-//       },
-//       body: JSON.stringify(data),
-//     });
-
-//     result = await response.json();
-//     console.log("Success:", result);
-
-//     if (result.res.noteinsert === true) {
-//       console.log("result Worker", result.res.lastNote.results[0].title);
-//       const noteId = result.res.lastNote.results[0].noteId;
-//       const usersId = id;
-//       const title = result.res.lastNote.results[0].title;
-//       const description = result.res.lastNote.results[0].description;
-//       const lastUpdate = result.res.lastNote.results[0].lastUpdate;
-//       const deleted = result.res.lastNote.results[0].deleted;
-//       addNote(noteId, usersId, title, description, lastUpdate, deleted);
-//       console.log("addNote Worker");
-//       return result;
-//     } else {
-//       console.log("Note dont inserted");
-//     }
-//   } catch (error) {
-//     console.error("Error:", error);
-
-//     const noteId = null;
-//     const usersId = id;
-//     const title = title;
-//     const description = description;
-//     const lastUpdate = new Date();
-//     const deleted = null;
-
-//     addNote(noteId, usersId, title, description, lastUpdate, deleted);
-//   }
-
-//   //excluir após testes
-//   // const noteId =null;
-//   //   const usersId = id;
-//   //   const lastUpdate = new Date();
-//   //   const deleted = null;
-
-//   //   addNote(noteId, usersId, title, description, lastUpdate, deleted)
-// }
 
 export async function insertNote(title, description, token, id) {
   let result = null;
@@ -147,7 +91,7 @@ export async function insertNote(title, description, token, id) {
       description: description,
       token: token,
     };
-    const response = await fetch("http://127.0.0.1:8787/", {
+    const response = await fetch(api_url, {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -193,7 +137,7 @@ export async function deleteNoteClound(
       noteId: noteId,
       token: token,
     };
-    const response = await fetch("http://127.0.0.1:8787/", {
+    const response = await fetch(api_url, {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -241,7 +185,7 @@ export async function setNoteClound(
       deleted: deleted,
       token: token,
     };
-    const response = await fetch("http://127.0.0.1:8787/", {
+    const response = await fetch(api_url, {
       method: "POST",
       headers: {
         "content-type": "application/json",
