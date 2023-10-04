@@ -55,6 +55,13 @@ const token = ref(null);
 const allNoteClound = ref(null);
 let resultCloundLogin = null;
 let resultCloundInsertNote = null;
+const viewNoteFor = ref(null);
+
+const noteVisible = (entered) => {
+  viewNoteFor.value = entered;
+  console.log("viewNoteFor",viewNoteFor.value)
+
+}
 
 
 const sigUp = () => {
@@ -377,6 +384,12 @@ async function reloadNote() {
   //   }
   // }
 
+  for(let i = 0; i < sizeLocal; i++){
+    if(allNote.value[i].deleted == null){
+      let allNoteTemporary;
+      allNoteTemporary.push
+    }
+  }
 
 
   for (let i = 0; i < sizeLocal; i++) {
@@ -873,23 +886,29 @@ onMounted(() => {
           <!-- view saved notes -->
           <div v-if="!toggleModal || toggleModal && !toggleWidht"
             class="grid xl:grid-cols-7 xl:gap-4 md:grid-cols-5 md:gap-3 ph:grid-cols-2 ph:gap-2 dark:bg-zinc-900 pb-4">
+            <div class="hidden">
+              <h1 id="1" class="display:true">Visible</h1>
+              <h1 id="2" class="hidden">Invisible</h1>
+            </div>
             <div
-              class="container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)]  p-2 rounded-md mt-2 content-start break-words font-semibold hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] dark:bg-zinc-900 dark:shadow-none dark:border-2 dark:border-gray-700"
-              v-for="entered in allNote" :key="entered" @click="viewNote(entered.id), toggleTitle = false">
-              
-              <div v-if="Array.isArray(entered.description)">
-                {{ entered.title }}
-                <div v-for="entereds in entered.description" :key="entereds" class="grid grid-cols-12">
-                  <input type="checkbox" :checked=entereds.checkBox
-                    class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center mx-2 ">
-                  <input type="text" :value=entereds.description
-                    class="col-start-2 col-span-11 ml-1 font-normal dark:bg-zinc-900">
+             
+              v-for="entered in allNote" :key="entered" @click="viewNote(entered.id), toggleTitle = false" class="">
+              <div v-if="entered.deleted == null" class=" container shadow-[0_7px_15px_1px_rgba(0,0,0,0.3)]  p-2 rounded-md mt-2 content-start break-words font-semibold hover:shadow-[0_7px_15px_1px_rgba(0,0,0,0.5)] dark:bg-zinc-900 dark:shadow-none dark:border-2 dark:border-gray-700">
+                <div v-if="Array.isArray(entered.description)">
+                  {{ entered.title }}
+                  <div v-for="entereds in entered.description" :key="entereds" class="grid grid-cols-12">
+                    <input type="checkbox" :checked=entereds.checkBox
+                      class="col-start-1 col-span-1 object-contain h-4 w-4 place-self-center mx-2 ">
+                    <input type="text" :value=entereds.description
+                      class="col-start-2 col-span-11 ml-1 font-normal dark:bg-zinc-900">
+                  </div>
+                </div>
+                <div v-else>
+                  {{ entered.title }}
+                  <p class="font-normal text-left dark:bg-zinc-900">{{ entered.description }}</p>
                 </div>
               </div>
-              <div v-else>
-                {{ entered.title }}
-                <p class="font-normal text-left dark:bg-zinc-900">{{ entered.description }}</p>
-              </div>
+
             </div>
           </div>
 
