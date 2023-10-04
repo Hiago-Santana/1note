@@ -386,8 +386,16 @@ async function reloadNote() {
 
   for(let i = 0; i < sizeLocal; i++){
     if(allNote.value[i].deleted == null){
+      const idt = allNote.value[i].id;
+      const noteIdt = allNote.value[i].noteId;
+      const userIdt = allNote.value[i].userId;
+      const titlet = allNote.value[i].title;
+      const descriptiont = allNote.value[i].description;
+      const lastUpdatet = allNote.value[i].lastUpdate;
+      const deletedt = allNote.value[i].deleted;
+
       let allNoteTemporary;
-      allNoteTemporary.push
+      allNoteTemporary.push({ id: id, title: title, description: description })
     }
   }
 
