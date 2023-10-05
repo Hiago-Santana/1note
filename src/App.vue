@@ -886,7 +886,7 @@ onMounted(() => {
                 </div>
               </div>
               <textarea v-if="toggleTitle && !descriptionList" v-model="enteredDescription" rows="5"
-                class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 m-2 bg-white border-0 dark:bg-zinc-900"
+                class="overflow-auto focus:outline-none w-full px-0 text-sm text-gray-900 m-2 bg-white border-0 dark:bg-zinc-900 dark:text-gray-300"
                 placeholder="Nota" required style=""></textarea>
             </div>
           </div>
