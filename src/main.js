@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import './style.css'
 import App from './App.vue'
+import ViewNote from './components/ViewNote.vue'
 
 //createApp(App).mount('#app')
 
@@ -28,6 +29,9 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 library.add(faUserSecret, faXmark, faTrash, faCirclePlus, faArrowLeft, faListCheck, faX, faPlus)
 
 
-createApp(App)
-.component('font-awesome-icon', FontAwesomeIcon)
-.mount('#app')
+const app = createApp(App)
+app.component('font-awesome-icon', FontAwesomeIcon);
+app.component('teste',ViewNote);
+app.mount('#app');
+
+

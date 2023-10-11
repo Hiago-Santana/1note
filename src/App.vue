@@ -516,7 +516,7 @@ onMounted(() => {
 
 <template>
   <section class="h-screen">
-
+    <teste></teste>
     <div v-if="!logIn && !buttonSignUp" class="grid content-end mx-8 h-full">
       <h1 class="text-2xl mb-1 text-blue-500">1 Note</h1>
       <h2 class="mb-10 text-sm">Suas anotações em um único lugar.</h2>
