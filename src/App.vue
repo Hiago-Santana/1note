@@ -2,9 +2,13 @@
 import { onMounted, ref } from 'vue'
 import { addNote, readAllNote, setNote } from './components/indexeddb'
 import { createAcount, logInCount, insertNote, setNoteClound } from './components/worker'
+//import { logIn, token } from './components/LogInSignUp.vue'
 import Index from 'flexsearch';
 import { faGofore } from '@fortawesome/free-brands-svg-icons';
+//import {superTest} from './components/ViewNote.vue'
+//import viewNoteTeste from './components/viewNoteTeste'
 
+const viewNoteTeste = ref(null);
 const enteredTitle = ref(null);
 const enteredDescription = ref(null);
 const indexNote = ref(null);
@@ -31,7 +35,7 @@ const descriptionEdite = ref("");
 const checkBoxValue = ref("");
 const addChecKBox = ref(false);
 const trashButton = ref(false)
-const logIn = ref(false);
+//const logIn = ref(false);
 const buttonSignUp = ref(false);
 const cAName = ref(null);
 const cAEmail = ref(null);
@@ -40,7 +44,7 @@ const mensageAlerte = ref(null);
 const logEmail = ref('hiago@hotmail.com');
 const logPassword = ref("123456");
 const userLoged = ref(false);
-const token = ref(null);
+//const token = ref(null);
 const allNoteClound = ref(null);
 let resultCloundLogin = null;
 let resultCloundInsertNote = null;
@@ -510,12 +514,15 @@ onMounted(() => {
   //reloadNote(),
   window.addEventListener('resize', toggleScreen),
     toggleScreen();
+    console.log("viewNoteTeste",viewNoteTeste.value)
 });
 
 </script>
 
 <template>
   <section class="h-screen">
+    <viewNoteTeste ref="viewNoteTeste"/>
+    <h1>{{ superTest }}</h1>
     <teste></teste>
     <div v-if="!logIn && !buttonSignUp" class="grid content-end mx-8 h-full">
       <h1 class="text-2xl mb-1 text-blue-500">1 Note</h1>

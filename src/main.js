@@ -1,7 +1,8 @@
 import { createApp } from 'vue'
 import './style.css'
 import App from './App.vue'
-import ViewNote from './components/ViewNote.vue'
+import viewNoteTeste from './components/viewNoteTeste.vue'
+import LogInSignUp from './components/LogInSignUp.vue'
 
 //createApp(App).mount('#app')
 
@@ -31,7 +32,10 @@ library.add(faUserSecret, faXmark, faTrash, faCirclePlus, faArrowLeft, faListChe
 
 const app = createApp(App)
 app.component('font-awesome-icon', FontAwesomeIcon);
-app.component('teste',ViewNote);
+app.component('teste',viewNoteTeste);
+
+app.component('login-signup',LogInSignUp);
+//app.use(LogInSignUp)
 app.mount('#app');
 
 
